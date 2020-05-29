@@ -1,0 +1,29 @@
+name: Run tests
+on: [pull_request]
+jobs:
+  CommonTests:
+    strategy:
+        fail-fast: false
+        matrix:
+          os: [ubuntu-16.04, ubuntu-latest, windows-2016, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    
+    - name: Run tests
+      shell: pwsh  
+      run: |
+        Install-Module Pester -Force -Scope CurrentUser
+        Import-Module Pester
+        $pesterParams = @(
+          @{
+            Path="./packages-generation/manifest-utils.Tests.ps1";
+          },
+        )
+        Invoke-Pester -Script $pesterParams -OutputFile "test_results.xml" -OutputFormat NUnitXml
+    - name: Upload math result for job 1
+      uses: actions/upload-artifact@v1
+      with:
+        name: test_results
+        path: test_results.xml
