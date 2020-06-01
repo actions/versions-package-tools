@@ -7,7 +7,7 @@ Versions manifest is needed to find the latest assets for particular version of 
 .PARAMETER GitHubRepositoryOwner
 Required parameter. The organization which tool repository belongs
 .PARAMETER GitHubRepositoryName
-Optional parameter. The name of tool repository
+Required parameter. The name of tool repository
 .PARAMETER GitHubAccessToken
 Required parameter. PAT Token to overcome GitHub API Rate limit
 .PARAMETER OutputFile
