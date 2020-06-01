@@ -12,6 +12,6 @@ jobs:
     - name: Run tests
       shell: pwsh  
       run: |
-        Install-Module Pester -RequiredVersion 4.10.1 -Force -Scope CurrentUser
+        Install-Module Pester -Force -Scope CurrentUser
         Import-Module Pester
-        Invoke-Pester -OutputFile "test_results.xml" -OutputFormat NUnitXml
+        Invoke-Pester -CI
