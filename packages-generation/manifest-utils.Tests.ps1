@@ -68,7 +68,7 @@ Describe "Build-VersionsManifest" {
         @{ name = "python-3.8.3-linux-18.04-x64.tar.gz"; browser_download_url = "fake_url"; }
     )
     $configuration = @{
-        regex = "python-\d+\.\d+\.\d+-(\w+)-([\w\.]+)?-?(x\d+)";
+        regex = "python-\\d+\\.\\d+\\.\\d+-(\\w+)-([\\w\\.]+)?-?(x\\d+)";
         groups = [PSCustomObject]@{ platform = 1; platform_version = 2; arch = "x64"; }
     }
     $expectedManifestFiles = @(
