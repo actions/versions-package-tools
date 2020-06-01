@@ -1,5 +1,8 @@
-Import-Module (Join-Path $PSScriptRoot "manifest-utils.psm1") -Force
+#Requires -Modules Pester
+#Requires -Modules Assert
 
+Import-Module (Join-Path $PSScriptRoot "manifest-utils.psm1") -Force
+  
 Describe "New-AssetItem" {
     It "use regex to parse all values in correct order" {
         $githubAsset = @{ name = "python-3.8.3-linux-16.04-x64.tar.gz"; browser_download_url = "long_url"; }
