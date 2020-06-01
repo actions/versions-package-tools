@@ -8,12 +8,16 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@master
-    
+
+    - name: Install Pester
+      shell: pwsh
+      run: |
+        Install-Module Pester -Force -Scope CurrentUser -RequiredVersion 4.10.1
+        Install-Module Assert -Force -Scope CurrentUser
+
     - name: Run tests
       shell: pwsh  
       run: |
-        Install-Module Pester -Force -Scope CurrentUser
-        Install-Module Assert -Force -Scope CurrentUser
         Import-Module Pester
         Import-Module Assert
         Invoke-Pester -CI
