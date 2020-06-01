@@ -1,0 +1,23 @@
+name: Run tests
+on: [pull_request]
+jobs:
+  CommonTests:
+    strategy:
+        fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Install Pester
+      shell: pwsh
+      run: |
+        Install-Module Pester -Force -Scope CurrentUser -RequiredVersion 4.10.1
+        Install-Module Assert -Force -Scope CurrentUser
+
+    - name: Run tests
+      shell: pwsh  
+      run: |
+        Import-Module Pester
+        Import-Module Assert
+        Invoke-Pester -EnableExit
