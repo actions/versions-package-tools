@@ -14,4 +14,4 @@ jobs:
       run: |
         Install-Module Pester -Force -Scope CurrentUser
         Import-Module Pester
-        Invoke-Pester -Ci -OutputFile "test_results.xml" -OutputFormat NUnitXml
+        Invoke-Pester -Ci -Output "test_results.xml"
