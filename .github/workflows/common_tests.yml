@@ -13,7 +13,7 @@ jobs:
       shell: pwsh  
       run: |
         Install-Module Pester -Force -Scope CurrentUser
-        Install-Module -Name Assert
+        Install-Module Assert -Force -Scope CurrentUser
         Import-Module Pester
         Import-Module Assert
         Invoke-Pester -CI
