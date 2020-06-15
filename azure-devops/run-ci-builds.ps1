@@ -24,12 +24,12 @@ function Get-ToolVersions {
     )
     
     [string[]] $versionsList = @()
-    if ($ToolVersions){
+    if ($ToolVersions) {
         $versionsList = $ToolVersions.Split(',')
     } else {
         Write-Host "Get the list of releases from $ManifestLink"
         $releases = Invoke-RestMethod $ManifestLink -MaximumRetryCount $Retries -RetryIntervalSec $RetryIntervalSec
-        $releases | ForEach-Object { $versionsList += $_.version }
+        $versionsList = $releases.version
     }
 
     return $versionsList
