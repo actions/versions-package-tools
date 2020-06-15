@@ -32,6 +32,7 @@ function Get-ToolVersions {
         $versionsList = $releases.version
     }
 
+    Write-Host "Versions to build: $versionsList"
     return $versionsList
 }
 
@@ -41,42 +42,17 @@ function Queue-Builds {
         [Parameter(Mandatory)] [string[]] $ToolVersions,
         [Parameter(Mandatory)] [string] $SourceBranch,
         [Parameter(Mandatory)] [string] $SourceVersion,
-        [Parameter(Mandatory)] [UInt32] $DefinitionId,
-        [Parameter(Mandatory)] [UInt32] $RetryIntervalSec,
-        [Parameter(Mandatory)] [UInt32] $Retries
+        [Parameter(Mandatory)] [UInt32] $DefinitionId
     )
 
     [BuildInfo[]]$queuedBuilds = @()
 
     $ToolVersions | ForEach-Object { 
         $version = $_.Trim()
-        
-        while ($Retries -gt 0)
-        {
-            try
-            {
-                Write-Host "Queue build for $version..."
-                $queuedBuild = $AzureDevOpsApi.QueueBuild($version, $SourceBranch, $SourceVersion, $DefinitionId)
-                $buildInfo = Get-BuildInfo -AzureDevOpsApi $AzureDevOpsApi -Build $queuedBuild
-                Write-Host "Queued build: $($buildInfo.Link)"
-                break
-            }
-            catch
-            {
-                Write-Host "There is an error during build starting:`n $_"
-                $Retries--
-            
-                if ($Retries -eq 0)
-                {
-                    Write-Host "Build can't be queued, please try later"
-                    exit 1
-                }
-            
-                Write-Host "Waiting 30 seconds before retrying. Retries left: $Retries"
-                Start-Sleep -Seconds $RetryIntervalSec
-            }
-        }
-        
+        Write-Host "Queue build for $version..."
+        $queuedBuild = $AzureDevOpsApi.QueueBuild($version, $SourceBranch, $SourceVersion, $DefinitionId)
+        $buildInfo = Get-BuildInfo -AzureDevOpsApi $AzureDevOpsApi -Build $queuedBuild
+        Write-Host "Queued build: $($buildInfo.Link)"
         $queuedBuilds += $buildInfo
     }
 
@@ -128,7 +104,9 @@ function Make-BuildsOutput {
 
 $azureDevOpsApi = Get-AzureDevOpsApi -TeamFoundationCollectionUri $TeamFoundationCollectionUri `
                                      -ProjectName $AzureDevOpsProjectName `
-                                     -AccessToken $AzureDevOpsAccessToken
+                                     -AccessToken $AzureDevOpsAccessToken `
+                                     -RetryCount $RetryCount `
+                                     -RetryIntervalSec $RetryIntervalSec
 
 $toolVersionsList = Get-ToolVersions -ManifestLink $ManifestLink `
                                      -RetryIntervalSec $RetryIntervalSec `
@@ -139,9 +117,7 @@ $queuedBuilds = Queue-Builds -AzureDevOpsApi $azureDevOpsApi `
                              -ToolVersions $toolVersionsList `
                              -SourceBranch $SourceBranch `
                              -SourceVersion $SourceVersion `
-                             -DefinitionId $DefinitionId `
-                             -RetryIntervalSec $RetryIntervalSec `
-                             -Retries $RetryCount
+                             -DefinitionId $DefinitionId
 
 if ($WaitForBuilds) {
     Write-Host "`nWaiting results of builds ..."
