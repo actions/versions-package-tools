@@ -21,7 +21,6 @@ function Publish-Error {
 
 function Test-DownloadUrl {
     param([string] $DownloadUrl)
-    $DownloadUrl = $DownloadUrl + "w"
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
     if ($AccessToken) {
         $request.Headers.Add("Authorization", $authorizationHeaderValue)
