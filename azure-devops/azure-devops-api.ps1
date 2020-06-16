@@ -3,8 +3,8 @@ class AzureDevOpsApi
     [string] $BaseUrl
     [string] $RepoOwner
     [object] $AuthHeader
-    [UInt32] $RetryCount = 0
-    [UInt32] $RetryIntervalSec = 30
+    [UInt32] $RetryCount
+    [UInt32] $RetryIntervalSec
 
     AzureDevOpsApi(
         [string] $TeamFoundationCollectionUri,
@@ -15,13 +15,8 @@ class AzureDevOpsApi
     ) {
         $this.BaseUrl = $this.BuildBaseUrl($TeamFoundationCollectionUri, $ProjectName)
         $this.AuthHeader = $this.BuildAuth($AccessToken)
-        
-        if ($RetryCount -gt 0) {
-            $this.RetryCount = $RetryCount
-        }
-        if ($RetryIntervalSec -gt 0) {
-            $this.RetryIntervalSec = $RetryIntervalSec
-        }
+        $this.RetryCount = $RetryCount
+        $this.RetryIntervalSec = $RetryIntervalSec
     }
 
     [object] hidden BuildAuth([string]$AccessToken) {
@@ -96,8 +91,8 @@ function Get-AzureDevOpsApi {
         [string] $TeamFoundationCollectionUri,
         [string] $ProjectName,
         [string] $AccessToken,
-        [UInt32] $RetryCount,
-        [UInt32] $RetryIntervalSec
+        [UInt32] $RetryCount = 3,
+        [UInt32] $RetryIntervalSec = 30
     )
 
     return [AzureDevOpsApi]::New($TeamFoundationCollectionUri, $ProjectName, $AccessToken, $RetryCount, $RetryIntervalSec)

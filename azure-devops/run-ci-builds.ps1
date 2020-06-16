@@ -9,7 +9,7 @@ param (
     [Parameter(Mandatory)] [bool] $WaitForBuilds,
     [string] $ToolVersions,
     [UInt32] $RetryIntervalSec = 30,
-    [UInt32] $RetryCount = 20
+    [UInt32] $RetryCount = 3
 )
 
 Import-Module (Join-Path $PSScriptRoot "azure-devops-api.ps1")
