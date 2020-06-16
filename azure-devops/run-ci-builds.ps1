@@ -8,7 +8,7 @@ param (
     [Parameter(Mandatory)] [string] $ManifestLink,
     [Parameter(Mandatory)] [bool] $WaitForBuilds,
     [string] $ToolVersions,
-    [UInt32] $RetryIntervalSec = 30,
+    [UInt32] $RetryIntervalSec = 60,
     [UInt32] $RetryCount = 3
 )
 

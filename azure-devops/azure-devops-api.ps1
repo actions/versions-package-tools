@@ -92,7 +92,7 @@ function Get-AzureDevOpsApi {
         [string] $ProjectName,
         [string] $AccessToken,
         [UInt32] $RetryCount = 3,
-        [UInt32] $RetryIntervalSec = 30
+        [UInt32] $RetryIntervalSec = 60
     )
 
     return [AzureDevOpsApi]::New($TeamFoundationCollectionUri, $ProjectName, $AccessToken, $RetryCount, $RetryIntervalSec)
