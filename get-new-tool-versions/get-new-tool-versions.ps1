@@ -6,8 +6,8 @@ Check and return list of new available tool versions
 param (
     [Parameter(Mandatory)] [string] $DistURL,
     [Parameter(Mandatory)] [string] $ManifestLink,
-    [string] $VersionFilterToInclude,
-    [string] $VersionFilterToExclude,
+    [string[]] $VersionFilterToInclude,
+    [string[]] $VersionFilterToExclude,
     [UInt32] $RetryIntervalSec = 60,
     [UInt32] $RetryCount = 3
 )
@@ -37,17 +37,9 @@ Write-Host "Get the packages list from $ManifestLink"
 
 [Version[]] $formattedVersions = Format-Versions -Versions $versionsFromDist
 
-if ($VersionFilterToInclude) {
-    $formattedVersions = Filter-Versions -Versions $formattedVersions `
-                                         -VersionFilter $VersionFilterToInclude `
-                                         -IncludeVersions $true
-}
-
-if ($VersionFilterToExclude) {
-    $formattedVersions = Filter-Versions -Versions $formattedVersions `
-                                         -VersionFilter $VersionFilterToExclude `
-                                         -IncludeVersions $false
-}
+$formattedVersions = Filter-Versions -Versions $formattedVersions `
+                                     -IncludeFilters $VersionFilterToInclude `
+                                     -ExcludeFilters $VersionFilterToExclude
 
 $versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromManifest `
                                          -VersionsFromDist $formattedVersions

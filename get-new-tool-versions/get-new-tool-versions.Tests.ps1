@@ -27,7 +27,7 @@ Describe "Format-Versions" {
         $actualOutput | Should -Be $expectedOutput
     }
 
-    It "Skip versions with 1 digin" {
+    It "Skip versions with 1 digit" {
         $actualOutput = Format-Versions -Versions @("14", "v2")
         $expectedOutput = @()
         $actualOutput | Should -Be $expectedOutput
@@ -37,27 +37,42 @@ Describe "Format-Versions" {
 Describe "Filter-Versions" {
     $inputVersions = @("8.2.1", "9.3.3", "10.0.2", "10.0.3", "10.5.6", "12.4.3", "12.5.1", "14.2.0")
 
-    It "Include filter" {
+    It "Include filter only" {
         $includeFilters = @("8.*", "14.*")
-        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters
+        $excludeFilters = @()
+        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
         $expectedOutput = @("8.2.1", "14.2.0")
         $actualOutput | Should -Be $expectedOutput
     }
 
-    It "Exclude filter" {
+    It "Include and exclude filters" {
         $includeFilters = @("10.*", "12.*")
         $excludeFilters = @("10.0.*", "12.4.3")
         $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
         $expectedOutput = @("10.5.6", "12.5.1")
         $actualOutput | Should -Be $expectedOutput
     }
+
+    It "Exclude filter only" {
+        $includeFilters = @()
+        $excludeFilters = @("10.*", "12.*")
+        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
+        $expectedOutput = @("8.2.1", "9.3.3", "14.2.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
+
+    It "Include and exclude filters are empty" {
+        $actualOutput = Filter-Versions -Versions $inputVersions
+        $expectedOutput = @("8.2.1", "9.3.3", "10.0.2", "10.0.3", "10.5.6", "12.4.3", "12.5.1", "14.2.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
 }
 
-Describe "Get-VersionsToBuild" {
+Describe "Skip-ExistingVersions" {
     It "Substract versions correctly" {
         $distInput = @("14.2.0", "14.3.0", "14.4.0", "14.4.1")
         $manifestInput = @("12.0.0", "14.2.0", "14.4.0")
-        $actualOutput = Get-VersionsToBuild -VersionsFromDist $distInput -VersionsFromManifest $manifestInput
+        $actualOutput =  Skip-ExistingVersions -VersionsFromDist $distInput -VersionsFromManifest $manifestInput
         $expectedOutput = @("14.3.0", "14.4.1")
         $actualOutput | Should -Be $expectedOutput
     }

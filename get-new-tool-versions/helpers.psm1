@@ -5,9 +5,7 @@ function Format-Versions {
 
     [Version[]] $formattedVersions = @()
     
-    foreach($version in $Versions) { 
-        $substredVersion = $null
-        
+    foreach($version in $Versions) {
         # Cut a string from index of first digit because initially it has invalid format (v14.4.0 or go1.14.4)
         if (-not ($version -match '(?<number>\d)')) {
             Write-Host "Invalid version format - $version"
@@ -34,23 +32,22 @@ function Format-Versions {
 
 function Filter-Versions {
     param (
-        [Parameter(Mandatory)] [string[]] $Versions,
-        [Parameter(Mandatory)] [string] $VersionFilter,
-        [Parameter(Mandatory)] [bool] $IncludeVersions
+        [Parameter(Mandatory)] [version[]] $Versions,
+        [string[]] $IncludeFilters,
+        [string[]] $ExcludeFilters
     )
 
-    $versionFilters = $VersionFilter.Split(',')
-    [Version[]] $filteredVersions = @()
-
-    foreach($filter in $versionFilters) {
-        if ($IncludeVersions) {
-            $filteredVersions += $Versions | Where-Object { $_ -like $filter }
-        } else {
-            $filteredVersions += $Versions | Where-Object { $_ -notlike $filter }
-        }
+    if ($IncludeFilters.Length -eq 0) {
+        $IncludeFilters = @('*')
     }
 
-    return $filteredVersions
+    return $Versions | Where-Object {
+        $ver = $_
+        $matchedIncludeFilters = $IncludeFilters | Where-Object { $ver -like $_ }
+        $matchedExcludeFilters = $ExcludeFilters | Where-Object { $ver -like $_ }
+
+        return ($matchedIncludeFilters -ne $null) -and ($matchedExcludeFilters -eq $null)
+    }
 }
 
 function Skip-ExistingVersions {
@@ -59,8 +56,5 @@ function Skip-ExistingVersions {
         [Parameter(Mandatory)] [string[]] $VersionsFromDist
     )
 
-    $newVersions = @()
-    $newVersions += $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
-
-    return $newVersions
+    return $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 }
