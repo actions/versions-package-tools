@@ -1,0 +1,64 @@
+#Requires -Modules Pester
+
+Import-Module (Join-Path $PSScriptRoot "helpers.psm1") -Force
+  
+Describe "Format-Versions" {
+    It "Clean versions" {
+        $actualOutput = Format-Versions -Versions @("14.2.0", "1.14.0")
+        $expectedOutput = @("14.2.0", "1.14.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
+
+    It "Versions with prefixes" {
+        $actualOutput = Format-Versions -Versions @("v14.2.0", "go1.14.0")
+        $expectedOutput = @("14.2.0", "1.14.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
+
+    It "Skip beta and rc versions" {
+        $actualOutput = Format-Versions -Versions @("14.2.0-beta", "v1.14.0-rc-1")
+        $expectedOutput = @()
+        $actualOutput | Should -Be $expectedOutput
+    }
+    
+    It "Short version" {
+        $actualOutput = Format-Versions -Versions @("14.2", "v2.0")
+        $expectedOutput = @("14.2.0", "2.0.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
+
+    It "Skip versions with 1 digin" {
+        $actualOutput = Format-Versions -Versions @("14", "v2")
+        $expectedOutput = @()
+        $actualOutput | Should -Be $expectedOutput
+    }
+}
+
+Describe "Filter-Versions" {
+    $inputVersions = @("8.2.1", "9.3.3", "10.0.2", "10.0.3", "10.5.6", "12.4.3", "12.5.1", "14.2.0")
+
+    It "Include filter" {
+        $includeFilters = @("8.*", "14.*")
+        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters
+        $expectedOutput = @("8.2.1", "14.2.0")
+        $actualOutput | Should -Be $expectedOutput
+    }
+
+    It "Exclude filter" {
+        $includeFilters = @("10.*", "12.*")
+        $excludeFilters = @("10.0.*", "12.4.3")
+        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
+        $expectedOutput = @("10.5.6", "12.5.1")
+        $actualOutput | Should -Be $expectedOutput
+    }
+}
+
+Describe "Get-VersionsToBuild" {
+    It "Substract versions correctly" {
+        $distInput = @("14.2.0", "14.3.0", "14.4.0", "14.4.1")
+        $manifestInput = @("12.0.0", "14.2.0", "14.4.0")
+        $actualOutput = Get-VersionsToBuild -VersionsFromDist $distInput -VersionsFromManifest $manifestInput
+        $expectedOutput = @("14.3.0", "14.4.1")
+        $actualOutput | Should -Be $expectedOutput
+    }
+}
