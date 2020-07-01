@@ -8,16 +8,15 @@ function Format-Versions {
     foreach($version in $Versions) { 
         $substredVersion = $null
         
-        # We cut a string from index of first digit because initially it has invalid format (v14.4.0 or go1.14.4)
-        if ($version -match '(?<number>\d)') {
-            $firstDigitIndex = $version.indexof($Matches.number)
-            $substredVersion = $version.substring($firstDigitIndex)
-        } else {
+        # Cut a string from index of first digit because initially it has invalid format (v14.4.0 or go1.14.4)
+        if (-not ($version -match '(?<number>\d)')) {
             Write-Host "Invalid version format - $version"
-            exit 1
+            exit 1  
         }
+        $firstDigitIndex = $version.indexof($Matches.number)
+        $substredVersion = $version.substring($firstDigitIndex)
         
-        # We filter versions to exclude unstable (for example: "go1.15beta1")
+        # Filter versions to exclude unstable (for example: "go1.15beta1")
         # Valid version format: x.x or x.x.x
         if ($substredVersion -notmatch '^\d+\.+\d+\.*\d*$') {
             continue
@@ -54,14 +53,14 @@ function Filter-Versions {
     return $filteredVersions
 }
 
-function Get-VersionsToBuild {
+function Skip-ExistingVersions {
     param (
         [Parameter(Mandatory)] [string[]] $VersionsFromManifest,
         [Parameter(Mandatory)] [string[]] $VersionsFromDist
     )
 
-    [System.Collections.ArrayList]$versionsToBuid = $VersionsFromDist
-    $VersionsFromManifest | ForEach-Object { $versionsToBuid.Remove($_) }
+    $newVersions = @()
+    $newVersions += $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 
-    return $versionsToBuid
+    return $newVersions
 }

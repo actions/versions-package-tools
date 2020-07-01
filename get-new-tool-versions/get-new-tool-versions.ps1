@@ -37,25 +37,23 @@ Write-Host "Get the packages list from $ManifestLink"
 
 [Version[]] $formattedVersions = Format-Versions -Versions $versionsFromDist
 
-if (-not ([string]::IsNullOrEmpty($VersionFilterToInclude))) {
+if ($VersionFilterToInclude) {
     $formattedVersions = Filter-Versions -Versions $formattedVersions `
                                          -VersionFilter $VersionFilterToInclude `
                                          -IncludeVersions $true
 }
 
-if (-not ([string]::IsNullOrEmpty($VersionFilterToExclude))) {
+if ($VersionFilterToExclude) {
     $formattedVersions = Filter-Versions -Versions $formattedVersions `
                                          -VersionFilter $VersionFilterToExclude `
                                          -IncludeVersions $false
 }
 
-$versionsToBuild = Get-VersionsToBuild -VersionsFromManifest $versionsFromManifest `
-                                       -VersionsFromDist $formattedVersions
+$versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromManifest `
+                                         -VersionsFromDist $formattedVersions
 
-if ([string]::IsNullOrEmpty($versionsToBuild)) {
-    Write-Host "There isn't versions to build"
-    return $null
-} else {
+if ($versionsToBuild) {
     Write-Host "The following versions are available to build:`n$versionsToBuild"
-    return "$versionsToBuild"
+} else {
+    Write-Host "There isn't versions to build"
 }
