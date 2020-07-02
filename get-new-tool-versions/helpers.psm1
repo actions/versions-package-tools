@@ -1,3 +1,17 @@
+function Validate-FiltersFormat {
+    param (
+        [Parameter(Mandatory)] [string[]] $Filters
+    )
+
+    foreach($filter in $Filters) {
+        $filter.Split('.') | ForEach-Object {
+            if (($_ -notmatch '^\d+$') -and ($_ -ne '*')) {
+                throw "Invalid filter format - $filter"
+            }
+        }
+    }
+}
+
 function Format-Versions {
     param (
         [Parameter(Mandatory)] [string[]] $Versions
@@ -30,7 +44,7 @@ function Format-Versions {
     return $formattedVersions
 }
 
-function Filter-Versions {
+function Select-VersionsByFilter {
     param (
         [Parameter(Mandatory)] [version[]] $Versions,
         [string[]] $IncludeFilters,
@@ -45,8 +59,7 @@ function Filter-Versions {
         $ver = $_
         $matchedIncludeFilters = $IncludeFilters | Where-Object { $ver -like $_ }
         $matchedExcludeFilters = $ExcludeFilters | Where-Object { $ver -like $_ }
-
-        return ($matchedIncludeFilters -ne $null) -and ($matchedExcludeFilters -eq $null)
+        return ($null -ne $matchedIncludeFilters) -and ($null -eq $matchedExcludeFilters)
     }
 }
 

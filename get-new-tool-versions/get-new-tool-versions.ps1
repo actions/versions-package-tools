@@ -14,10 +14,6 @@ param (
 
 Import-Module (Join-Path $PSScriptRoot "helpers.psm1")
 
-$VersionFilterToInclude.GetType()
-$VersionFilterToInclude.Length
-$VersionFilterToInclude | ForEach-Object { Write-Host $_ }
-
 function Get-VersionsByUrl {
     param (
         [Parameter(Mandatory)] [string] $ToolPackagesUrl,
@@ -27,6 +23,14 @@ function Get-VersionsByUrl {
 
     $packages = Invoke-RestMethod $ToolPackagesUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryIntervalSec
     return $packages.version
+}
+
+if ($VersionFilterToInclude) {
+    Validate-FiltersFormat -Filters $VersionFilterToInclude
+}
+
+if ($VersionFilterToExclude) {
+    Validate-FiltersFormat -Filters $VersionFilterToExclude
 }
 
 Write-Host "Get the packages list from $DistURL"
@@ -41,9 +45,9 @@ Write-Host "Get the packages list from $ManifestLink"
 
 [Version[]] $formattedVersions = Format-Versions -Versions $versionsFromDist
 
-$formattedVersions = Filter-Versions -Versions $formattedVersions `
-                                     -IncludeFilters $VersionFilterToInclude `
-                                     -ExcludeFilters $VersionFilterToExclude
+$formattedVersions = Select-VersionsByFilter -Versions $formattedVersions `
+                                             -IncludeFilters $VersionFilterToInclude `
+                                             -ExcludeFilters $VersionFilterToExclude
 
 $versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromManifest `
                                          -VersionsFromDist $formattedVersions

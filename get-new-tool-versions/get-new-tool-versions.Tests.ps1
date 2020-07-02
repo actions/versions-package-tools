@@ -2,6 +2,21 @@
 
 Import-Module (Join-Path $PSScriptRoot "helpers.psm1") -Force
   
+Describe "Validate-FiltersFormat" {
+    It "Filter with word" {
+        { Validate-FiltersFormat -Filters @("1two.2") } | Should -Throw "Invalid filter format"
+    }
+
+    It "Filter with non-word character" {
+        { Validate-FiltersFormat -Filters @("1,.2") } | Should -Throw "Invalid filter format"
+    }
+
+    It "Valid filters" {
+        { Validate-FiltersFormat -Filters @("*", "1", "1.*", "1.2", "1.2.*") } | Should -Not -Throw "Invalid filter format"
+    }
+
+}
+
 Describe "Format-Versions" {
     It "Clean versions" {
         $actualOutput = Format-Versions -Versions @("14.2.0", "1.14.0")
@@ -34,13 +49,13 @@ Describe "Format-Versions" {
     }
 }
 
-Describe "Filter-Versions" {
+Describe "Select-VersionsByFilter" {
     $inputVersions = @("8.2.1", "9.3.3", "10.0.2", "10.0.3", "10.5.6", "12.4.3", "12.5.1", "14.2.0")
 
     It "Include filter only" {
         $includeFilters = @("8.*", "14.*")
         $excludeFilters = @()
-        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
+        $actualOutput = Select-VersionsByFilter -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
         $expectedOutput = @("8.2.1", "14.2.0")
         $actualOutput | Should -Be $expectedOutput
     }
@@ -48,7 +63,7 @@ Describe "Filter-Versions" {
     It "Include and exclude filters" {
         $includeFilters = @("10.*", "12.*")
         $excludeFilters = @("10.0.*", "12.4.3")
-        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
+        $actualOutput = Select-VersionsByFilter -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
         $expectedOutput = @("10.5.6", "12.5.1")
         $actualOutput | Should -Be $expectedOutput
     }
@@ -56,13 +71,13 @@ Describe "Filter-Versions" {
     It "Exclude filter only" {
         $includeFilters = @()
         $excludeFilters = @("10.*", "12.*")
-        $actualOutput = Filter-Versions -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
+        $actualOutput = Select-VersionsByFilter -Versions $inputVersions -IncludeFilters $includeFilters -ExcludeFilters $excludeFilters
         $expectedOutput = @("8.2.1", "9.3.3", "14.2.0")
         $actualOutput | Should -Be $expectedOutput
     }
 
     It "Include and exclude filters are empty" {
-        $actualOutput = Filter-Versions -Versions $inputVersions
+        $actualOutput = Select-VersionsByFilter -Versions $inputVersions
         $expectedOutput = @("8.2.1", "9.3.3", "10.0.2", "10.0.3", "10.5.6", "12.4.3", "12.5.1", "14.2.0")
         $actualOutput | Should -Be $expectedOutput
     }
