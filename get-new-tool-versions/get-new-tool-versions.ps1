@@ -14,6 +14,10 @@ param (
 
 Import-Module (Join-Path $PSScriptRoot "helpers.psm1")
 
+$VersionFilterToInclude.GetType()
+$VersionFilterToInclude.Length
+$VersionFilterToInclude | ForEach-Object { Write-Host $_ }
+
 function Get-VersionsByUrl {
     param (
         [Parameter(Mandatory)] [string] $ToolPackagesUrl,
