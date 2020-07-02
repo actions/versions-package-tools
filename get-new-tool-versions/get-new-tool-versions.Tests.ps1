@@ -14,7 +14,6 @@ Describe "Validate-FiltersFormat" {
     It "Valid filters" {
         { Validate-FiltersFormat -Filters @("*", "1", "1.*", "1.2", "1.2.*") } | Should -Not -Throw "Invalid filter format"
     }
-
 }
 
 Describe "Format-Versions" {

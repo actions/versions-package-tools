@@ -59,7 +59,7 @@ function Select-VersionsByFilter {
         $ver = $_
         $matchedIncludeFilters = $IncludeFilters | Where-Object { $ver -like $_ }
         $matchedExcludeFilters = $ExcludeFilters | Where-Object { $ver -like $_ }
-        return ($null -ne $matchedIncludeFilters) -and ($null -eq $matchedExcludeFilters)
+        $matchedIncludeFilters -and (-not $matchedExcludeFilters)
     }
 }
 

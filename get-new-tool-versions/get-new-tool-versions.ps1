@@ -49,6 +49,11 @@ $formattedVersions = Select-VersionsByFilter -Versions $formattedVersions `
                                              -IncludeFilters $VersionFilterToInclude `
                                              -ExcludeFilters $VersionFilterToExclude
 
+if (-not $formattedVersions) {
+    Write-Host "Couldn't find available versions with current filters"
+    exit 1
+}
+
 $versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromManifest `
                                          -VersionsFromDist $formattedVersions
 
