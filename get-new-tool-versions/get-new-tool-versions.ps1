@@ -1,6 +1,19 @@
 <#
 .SYNOPSIS
 Check and return list of new available tool versions
+
+.PARAMETER DistURL
+Required parameter. Link to the json file included all available tool versions
+.PARAMETER ManifestLink
+Required parameter. Link to the the version-manifest.json file
+.PARAMETER VersionFilterToInclude
+Optional parameter. List of filters to include particular versions
+.PARAMETER VersionFilterToExclude
+Optional parameter. List of filters to exclude particular versions
+.PARAMETER RetryIntervalSec
+Optional parameter. Retry interval in seconds
+.PARAMETER RetryCount
+Optional parameter. Retry count
 #>
 
 param (
@@ -62,5 +75,5 @@ if ($versionsToBuild) {
     Write-Host "The following versions are available to build:`n$availableVersions"
     Write-Output "##vso[task.setvariable variable=TOOL_VERSIONS]$availableVersions"
 } else {
-    Write-Host "There isn't versions to build"
+    Write-Host "There aren't versions to build"
 }
