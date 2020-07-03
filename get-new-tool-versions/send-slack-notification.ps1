@@ -35,7 +35,7 @@ param(
 )
 
 # Import helpers module
-Import-Module $PSScriptRoot/slack.helpers.psm1 -DisableNameChecking
+Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
 $text = "The following versions of '$toolName' are available to upload: $toolVersion\nLink to the pipeline: $pipelineUrl"
