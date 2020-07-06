@@ -1,0 +1,32 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+trigger: none
+pr: none
+
+stages:
+- stage: Get_New_Versions
+  dependsOn: []
+  jobs:
+  - job: Get_Tool_Versions
+    timeoutInMinutes: 30
+    pool:
+      name: Azure Pipelines
+      vmImage: 'ubuntu-18.04'
+    steps:
+    - template: /azure-pipelines/templates/get-tool-versions-steps.yml
+
+- stage: Trigger_Builds
+  dependsOn: Get_New_Versions
+  jobs:
+  - deployment: Run_Builds
+    pool:
+      name: Azure Pipelines
+      vmImage: 'ubuntu-18.04'
+    variables:
+      ToolVersions: $[ stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
+    timeoutInMinutes: 180
+    environment: 'Get Available Tools Versions - Publishing Approval'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: /azure-pipelines/templates/run-ci-builds-steps.yml

@@ -56,6 +56,15 @@ class AzureDevOpsApi
         return $this.InvokeRestMethod($url, 'GET', $null)
     }
 
+    [object] UpdateBuildStatus([UInt32]$BuildId, [string]$BuildStatus){
+        $url = "build/builds/$BuildId"
+        $body = @{ 
+            status = $BuildStatus 
+        } | ConvertTo-Json
+
+        return $this.InvokeRestMethod($url, 'PATCH', $body)
+    }
+
     [string] hidden BuildUrl([string]$Url) {
         return "$($this.BaseUrl)/${Url}/?api-version=5.1"
     }

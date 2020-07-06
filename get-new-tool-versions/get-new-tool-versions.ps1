@@ -73,7 +73,7 @@ $versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromMani
 if ($versionsToBuild) {
     $availableVersions = $versionsToBuild -join ","
     Write-Host "The following versions are available to build:`n$availableVersions"
-    Write-Output "##vso[task.setvariable variable=TOOL_VERSIONS]$availableVersions"
+    Write-Output "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]$availableVersions"
 } else {
     Write-Host "There aren't versions to build"
 }
