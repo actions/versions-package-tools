@@ -9,9 +9,7 @@ steps:
         -DistURL "$(DIST_URL)" `
         -ManifestLink "$(MANIFEST_URL)" `
         -VersionFilterToInclude $(INCLUDE_FILTER) `
-        -VersionFilterToExclude $(EXCLUDE_FILTER) `
-        -RetryIntervalSec $(INTERVAL_SEC) `
-        -RetryCount $(RETRY_COUNT)
+        -VersionFilterToExclude $(EXCLUDE_FILTER)
 
 - task: PowerShell@2
   displayName: 'Cancel build'
@@ -22,22 +20,18 @@ steps:
       Import-Module "./azure-devops/azure-devops-api.ps1"
       $azureDevOpsApi = Get-AzureDevOpsApi -TeamFoundationCollectionUri $(System.TeamFoundationCollectionUri) `
                                            -ProjectName $(System.TeamProject) `
-                                           -AccessToken $(System.AccessToken) `
-                                           -RetryCount $(INTERVAL_SEC) `
-                                           -RetryIntervalSec $(RETRY_COUNT)
+                                           -AccessToken $(System.AccessToken)
 
       $AzureDevOpsApi.UpdateBuildStatus($(Build.BuildId), 'Cancelling') | Out-Null
 
 - task: PowerShell@2
-  displayName: 'Set env variables'
+  displayName: 'Set env variable'
   condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
   inputs:
     TargetType: inline
     script: |
       $PipelineUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
       Write-Output "##vso[task.setvariable variable=PIPELINE_URL]$PipelineUrl"
-      $toolVersion = "$(Get_versions.TOOL_VERSIONS)".Replace(",",", ")
-      Write-Output "##vso[task.setvariable variable=TOOL_VERSIONS]$toolVersion"
 
 - task: PowerShell@2
   displayName: 'Send Slack notification'
@@ -48,6 +42,6 @@ steps:
     arguments: |
       -Url "$(SLACK_CHANNEL_URL)" `
       -ToolName "$(TOOL_NAME)" `
-      -ToolVersion "$(TOOL_VERSIONS)" `
+      -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
       -PipelineUrl "$(PIPELINE_URL)" `
       -ImageUrl "$(IMAGE_URL)"
