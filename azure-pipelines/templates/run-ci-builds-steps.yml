@@ -22,7 +22,7 @@ steps:
         -SourceBranch $(BRANCH) `
         -DefinitionId $(DEFINITION_ID) `
         -SourceVersion $(COMMIT_SHA) `
-        -ManifestLink $(MANIFEST_LINK) `
+        -ManifestLink $(MANIFEST_URL) `
         -WaitForBuilds $(WAIT_FOR_BUILDS) `
         -ToolVersions "$(ToolVersions)" `
         -RetryIntervalSec $(INTERVAL_SEC) `

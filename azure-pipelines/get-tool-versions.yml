@@ -1,13 +1,25 @@
 name: $(date:yyyyMMdd)$(rev:.r)
 trigger: none
 pr: none
+schedules:
+- cron: "0 3 * * *"
+  displayName: First daily build
+  branches:
+    include:
+    - master
+  always: true
+- cron: "0 15 * * *"
+  displayName: Second daily build
+  branches:
+    include:
+    - master
+  always: true
 
 stages:
 - stage: Get_New_Versions
   dependsOn: []
   jobs:
   - job: Get_Tool_Versions
-    timeoutInMinutes: 30
     pool:
       name: Azure Pipelines
       vmImage: 'ubuntu-18.04'
