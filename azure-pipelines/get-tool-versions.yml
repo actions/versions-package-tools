@@ -15,14 +15,18 @@ schedules:
     - master
   always: true
 
+variables:
+  PoolName: 'Azure Pipelines'
+  VmImage: 'ubuntu-18.04'
+
 stages:
 - stage: Get_New_Versions
   dependsOn: []
   jobs:
   - job: Get_Tool_Versions
     pool:
-      name: Azure Pipelines
-      vmImage: 'ubuntu-18.04'
+      name: $(PoolName)
+      vmImage: $(VmImage)
     steps:
     - template: /azure-pipelines/templates/get-tool-versions-steps.yml
 
@@ -31,8 +35,8 @@ stages:
   jobs:
   - deployment: Run_Builds
     pool:
-      name: Azure Pipelines
-      vmImage: 'ubuntu-18.04'
+      name: $(PoolName)
+      vmImage: $(VmImage)
     variables:
       ToolVersions: $[ stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
     timeoutInMinutes: 180
