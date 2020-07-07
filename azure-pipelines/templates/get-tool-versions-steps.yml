@@ -1,0 +1,47 @@
+steps:
+- task: PowerShell@2
+  displayName: 'Get new versions'
+  name: 'Get_versions'
+  inputs:
+    targetType: filePath
+    filePath: './get-new-tool-versions/get-new-tool-versions.ps1'
+    arguments: |
+        -DistURL "$(DIST_URL)" `
+        -ManifestLink "$(MANIFEST_URL)" `
+        -VersionFilterToInclude $(INCLUDE_FILTER) `
+        -VersionFilterToExclude $(EXCLUDE_FILTER)
+
+- task: PowerShell@2
+  displayName: 'Cancel build'
+  condition: and(succeeded(), eq(variables['Get_versions.TOOL_VERSIONS'], ''))
+  inputs:
+    TargetType: inline
+    script: |
+      Import-Module "./azure-devops/azure-devops-api.ps1"
+      $azureDevOpsApi = Get-AzureDevOpsApi -TeamFoundationCollectionUri $(System.TeamFoundationCollectionUri) `
+                                           -ProjectName $(System.TeamProject) `
+                                           -AccessToken $(System.AccessToken)
+
+      $AzureDevOpsApi.UpdateBuildStatus($(Build.BuildId), 'Cancelling') | Out-Null
+
+- task: PowerShell@2
+  displayName: 'Set env variable'
+  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
+  inputs:
+    TargetType: inline
+    script: |
+      $PipelineUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+      Write-Output "##vso[task.setvariable variable=PIPELINE_URL]$PipelineUrl"
+
+- task: PowerShell@2
+  displayName: 'Send Slack notification'
+  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
+  inputs:
+    targetType: filePath
+    filePath: './get-new-tool-versions/send-slack-notification.ps1'
+    arguments: |
+      -Url "$(SLACK_CHANNEL_URL)" `
+      -ToolName "$(TOOL_NAME)" `
+      -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
+      -PipelineUrl "$(PIPELINE_URL)" `
+      -ImageUrl "$(IMAGE_URL)"
