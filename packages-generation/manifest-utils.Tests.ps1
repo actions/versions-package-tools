@@ -60,6 +60,17 @@ Describe "Get-VersionFromRelease" {
         $release = @{ name = "3.8.3: Release title" }
         Get-VersionFromRelease -Release $release | Should -Be "3.8.3"
     }
+
+    It "take alpha, beta or rc version" {
+        $release = @{ name = "3.8.3-alpha.1"}
+        Get-VersionFromRelease -Release $release | Should -Be "3.8.3-alpha.1"
+
+        $release = @{ name = "3.8.3-beta.2"}
+        Get-VersionFromRelease -Release $release | Should -Be "3.8.3-alpha.2"
+
+        $release = @{ name = "3.8.3-rc.1"}
+        Get-VersionFromRelease -Release $release | Should -Be "3.8.3-rc.1"
+    }
 }
 
 Describe "Build-VersionsManifest" {
@@ -78,14 +89,28 @@ Describe "Build-VersionsManifest" {
 
     It "build manifest with correct version order" {
         $releases = @(
-            @{ name = "3.8.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-14T09:54:06Z"; assets = $assets },
+            @{ name = "3.8.1-beta.2"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-14T09:54:06Z"; assets = $assets },
             @{ name = "3.5.2: Hello"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:45:36Z"; assets = $assets },
-            @{ name = "3.8.3: Release title"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.3-alpha.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.1-rc.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.1-beta.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.4.7"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.1-alpha.3"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.1-beta.12"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.5.2-beta.2"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+            @{ name = "3.8.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
         )
         $expectedManifest = @(
-            [PSCustomObject]@{ version = "3.8.3"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles },
+            [PSCustomObject]@{ version = "3.8.3-alpha.1"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles },
             [PSCustomObject]@{ version = "3.8.1"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles },
+            [PSCustomObject]@{ version = "3.8.1-rc.1"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.8.1-beta.12"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.8.1-beta.2"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.8.1-beta.1"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.8.1-alpha.3"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
             [PSCustomObject]@{ version = "3.5.2"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.5.2-beta.2"; stable = $false; release_url = "fake_html_url"; files = $expectedManifestFiles }
+            [PSCustomObject]@{ version = "3.4.7"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles }
         )
         $actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
         Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
