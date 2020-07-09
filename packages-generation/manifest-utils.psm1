@@ -35,8 +35,8 @@ function Get-VersionFromRelease {
     )
     # Release name can contain additional information after ':' so filter it
     [string]$releaseName = $Release.name.Split(':')[0]
-    [Version]$version = $null
-    if (![Version]::TryParse($releaseName, [ref]$version)) {
+    [Semver]$version = $null
+    if (![Semver]::TryParse($releaseName, [ref]$version)) {
         throw "Release '$($Release.id)' has invalid title '$($Release.name)'. It can't be parsed as version. ( $($Release.html_url) )"
     }
 
@@ -57,21 +57,22 @@ function Build-VersionsManifest {
             continue
         }
 
-        [Version]$version = Get-VersionFromRelease $release
+        [Semver]$version = Get-VersionFromRelease $release
         $versionKey = $version.ToString()
 
         if ($versionsHash.ContainsKey($versionKey)) {
             continue
         }
-
+        
+        $stable = $version.PreReleaseLabel ? $false : $true
         $versionsHash.Add($versionKey, [PSCustomObject]@{
             version = $versionKey
-            stable = $true
+            stable = $stable
             release_url = $release.html_url
             files = $release.assets | ForEach-Object { New-AssetItem -ReleaseAsset $_ -Configuration $Configuration }
         })
     }
 
     # Sort versions by descending
-    return $versionsHash.Values | Sort-Object -Property @{ Expression = { [Version]$_.version }; Descending = $true }
+    return $versionsHash.Values | Sort-Object -Property @{ Expression = { [Semver]$_.version }; Descending = $true }
 }
