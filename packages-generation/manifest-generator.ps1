@@ -31,6 +31,5 @@ $configuration = Read-ConfigurationFile -Filepath $ConfigurationFile
 
 $gitHubApi = Get-GitHubApi -AccountName $GitHubRepositoryOwner -ProjectName $GitHubRepositoryName -AccessToken $GitHubAccessToken
 $releases = $gitHubApi.GetReleases()
-
 $versionIndex = Build-VersionsManifest -Releases $releases -Configuration $configuration
 $versionIndex | ConvertTo-Json -Depth 5 | Out-File $OutputFile -Encoding UTF8NoBOM -Force
