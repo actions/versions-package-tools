@@ -66,7 +66,7 @@ Describe "Get-VersionFromRelease" {
         Get-VersionFromRelease -Release $release | Should -Be "3.8.3-alpha.1"
 
         $release = @{ name = "3.8.3-beta.2"}
-        Get-VersionFromRelease -Release $release | Should -Be "3.8.3-alpha.2"
+        Get-VersionFromRelease -Release $release | Should -Be "3.8.3-beta.2"
 
         $release = @{ name = "3.8.3-rc.1"}
         Get-VersionFromRelease -Release $release | Should -Be "3.8.3-rc.1"
