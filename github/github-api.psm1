@@ -36,7 +36,7 @@ class GitHubApi
             title = $Title
             body = $Body
             head = $BranchName
-            base = "master"
+            base = "main"
         } | ConvertTo-Json
 
         $url = "pulls"
@@ -45,7 +45,7 @@ class GitHubApi
 
     [object] GetPullRequest([string]$BranchName, [string]$RepositoryOwner){
         $url = "pulls"
-        return $this.InvokeRestMethod($url, 'GET', "head=${RepositoryOwner}:$BranchName&base=master", $null)
+        return $this.InvokeRestMethod($url, 'GET', "head=${RepositoryOwner}:$BranchName&base=main", $null)
     }
 
     [object] UpdatePullRequest([string]$Title, [string]$Body, [string]$BranchName, [string]$PullRequestNumber){
@@ -53,7 +53,7 @@ class GitHubApi
             title = $Title
             body = $Body
             head = $BranchName
-            base = "master"
+            base = "main"
         } | ConvertTo-Json
 
         $url = "pulls/$PullRequestNumber"
