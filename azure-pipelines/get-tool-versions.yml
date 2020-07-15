@@ -6,13 +6,13 @@ schedules:
   displayName: First daily build
   branches:
     include:
-    - master
+    - main
   always: true
 - cron: "0 15 * * *"
   displayName: Second daily build
   branches:
     include:
-    - master
+    - main
   always: true
 
 variables:
