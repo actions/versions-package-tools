@@ -141,4 +141,24 @@ Describe "Build-VersionsManifest" {
         [array]$actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
         Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
     }
+
+    It "build correct manifest if release includes one asset" {
+        $asset = @(
+            @{ name = "python-3.8.3-linux-16.04-x64.tar.gz"; browser_download_url = "fake_url"; }
+        )
+        $expectedManifestFile = @(
+            [PSCustomObject]@{ filename = "python-3.8.3-linux-16.04-x64.tar.gz"; arch = "x64"; platform = "linux"; platform_version = "16.04"; download_url = "fake_url" }
+        )
+        
+        $releases = @(
+            @{ name = "3.8.3"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $asset },
+            @{ name = "3.8.1"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-14T09:54:06Z"; assets = $assets }
+        )
+        $expectedManifest = @(
+            [PSCustomObject]@{ version = "3.8.3"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFile },
+            [PSCustomObject]@{ version = "3.8.1"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles }
+        )
+        [array]$actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
+        Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
+    }
 }

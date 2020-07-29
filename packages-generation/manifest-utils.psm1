@@ -65,11 +65,13 @@ function Build-VersionsManifest {
         }
         
         $stable = $version.PreReleaseLabel ? $false : $true
+        [array]$releaseAssets = $release.assets | ForEach-Object { New-AssetItem -ReleaseAsset $_ -Configuration $Configuration }
+
         $versionsHash.Add($versionKey, [PSCustomObject]@{
             version = $versionKey
             stable = $stable
             release_url = $release.html_url
-            files = $release.assets | ForEach-Object { New-AssetItem -ReleaseAsset $_ -Configuration $Configuration }
+            files = $releaseAssets
         })
     }
 
