@@ -5,15 +5,13 @@ The module that contains a bunch of methods to interact with GitHub API V3
 class GitHubApi
 {
     [string] $BaseUrl
-    [string] $RepoOwner
     [object] $AuthHeader
 
     GitHubApi(
-        [string] $AccountName,
-        [string] $ProjectName,
+        [string] $RepositoryFullName,
         [string] $AccessToken
     ) {
-        $this.BaseUrl = $this.BuildBaseUrl($AccountName, $ProjectName)
+        $this.BaseUrl = $this.BuildBaseUrl($RepositoryFullName)
         $this.AuthHeader = $this.BuildAuth($AccessToken)
     }
 
@@ -27,8 +25,8 @@ class GitHubApi
         }
     }
 
-    [string] hidden BuildBaseUrl([string]$RepositoryOwner, [string]$RepositoryName) {
-        return "https://api.github.com/repos/$RepositoryOwner/$RepositoryName"
+    [string] hidden BuildBaseUrl([string]$RepositoryFullName) {
+        return "https://api.github.com/repos/$RepositoryFullName"
     }
 
     [object] CreateNewPullRequest([string]$Title, [string]$Body, [string]$BranchName){
@@ -82,6 +80,35 @@ class GitHubApi
         return $releases
     }
 
+    [void] DispatchWorkflow([string]$EventType) {
+        $url = "dispatches"
+        $body = @{
+            event_type = $EventType
+        } | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $body)
+    }
+
+    [object] GetWorkflowRuns([string]$WorkflowFileName) {
+        $url = "actions/workflows/$WorkflowFileName/runs"
+        return $this.InvokeRestMethod($url, 'GET', $null, $null)
+    }
+
+    [object] GetWorkflowRunJobs([string]$WorkflowRunId) {
+        $url = "actions/runs/$WorkflowRunId/jobs"
+        return $this.InvokeRestMethod($url, 'GET', $null, $null)
+    }
+
+    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [object]$Inputs) {
+        $url = "actions/workflows/${WorkflowFileName}/dispatches"
+        $body = @{
+            ref = $Ref
+            inputs = $Inputs
+        } | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $body)
+    }
+
     [string] hidden BuildUrl([string]$Url, [string]$RequestParams) {
         if ([string]::IsNullOrEmpty($RequestParams)) {
             return "$($this.BaseUrl)/$($Url)"
@@ -117,10 +144,9 @@ class GitHubApi
 
 function Get-GitHubApi {
     param (
-        [string] $AccountName,
-        [string] $ProjectName,
+        [string] $RepositoryFullName,
         [string] $AccessToken
     )
 
-    return [GitHubApi]::New($AccountName, $ProjectName, $AccessToken)
+    return [GitHubApi]::New($RepositoryFullName, $AccessToken)
 }

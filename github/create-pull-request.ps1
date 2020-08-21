@@ -2,10 +2,8 @@
 .SYNOPSIS
 Create commit with all unstaged changes in repository and create pull-request
 
-.PARAMETER RepositoryOwner
-Required parameter. The organization which tool repository belongs
-.PARAMETER RepositoryName
-Optional parameter. The name of tool repository
+.PARAMETER RepositoryFullName
+Required parameter. The owner and repository name. For example, 'actions/versions-package-tools'
 .PARAMETER AccessToken
 Required parameter. PAT Token to authorize
 .PARAMETER BranchName
@@ -18,8 +16,7 @@ Required parameter. The title of pull-request
 Required parameter. The description of pull-request
 #>
 param (
-    [Parameter(Mandatory)] [string] $RepositoryOwner,
-    [Parameter(Mandatory)] [string] $RepositoryName,
+    [Parameter(Mandatory)] [string] $RepositoryFullName,
     [Parameter(Mandatory)] [string] $AccessToken,
     [Parameter(Mandatory)] [string] $BranchName,
     [Parameter(Mandatory)] [string] $CommitMessage,
@@ -46,11 +43,11 @@ function Update-PullRequest {
 
     $updatedPullRequest = $GitHubApi.UpdatePullRequest($Title, $Body, $BranchName, $PullRequest.number)
 
-    if (($updatedPullRequest -eq $null) -or ($updatedPullRequest.html_url -eq $null)) {
-        Write-Host "##vso[task.logissue type=error;] Unexpected error occurs while updating pull request."
+    if (($null -eq $updatedPullRequest) -or ($null -eq $updatedPullRequest.html_url)) {
+        Write-Host "Unexpected error occurs while updating pull request."
         exit 1
     }
-    Write-host "##[section] Pull request updated: $($updatedPullRequest.html_url)"
+    Write-host "Pull request updated: $($updatedPullRequest.html_url)"
 }
 
 function Create-PullRequest {
@@ -67,12 +64,12 @@ function Create-PullRequest {
 
     $createdPullRequest = $GitHubApi.CreateNewPullRequest($Title, $Body, $BranchName)
 
-    if (($createdPullRequest -eq $null) -or ($createdPullRequest.html_url -eq $null)) {
-        Write-Host "##vso[task.logissue type=error;] Unexpected error occurs while creating pull request."
+    if (($null -eq $createdPullRequest) -or ($null -eq $createdPullRequest.html_url)) {
+        Write-Host "Unexpected error occurs while creating pull request."
         exit 1
     }
 
-    Write-host "##[section] Pull request created: $($createdPullRequest.html_url)"
+    Write-host "Pull request created: $($createdPullRequest.html_url)"
 }
 
 Write-Host "Configure local git preferences"
@@ -87,8 +84,9 @@ Git-CommitAllChanges -Message $CommitMessage
 Write-Host "Push branch: $BranchName"
 Git-PushBranch -Name $BranchName -Force $true
 
-$gitHubApi = Get-GitHubApi -AccountName $RepositoryOwner -ProjectName $RepositoryName -AccessToken $AccessToken
-$pullRequest = $gitHubApi.GetPullRequest($BranchName, $RepositoryOwner)
+$gitHubApi = Get-GitHubApi -RepositoryFullName $RepositoryFullName -AccessToken $AccessToken
+$repositoryOwner = $RepositoryFullName.Split('/')[0]
+$pullRequest = $gitHubApi.GetPullRequest($BranchName, $repositoryOwner)
 
 if ($pullRequest.Count -gt 0) {
     Write-Host "Update pull request"
