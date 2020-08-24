@@ -25,7 +25,7 @@ Import-Module (Join-Path $PSScriptRoot "manifest-utils.psm1") -Force
 
 $configuration = Read-ConfigurationFile -Filepath $ConfigurationFile
 
-$gitHubApi = Get-GitHubApi -RepositoryName $RepositoryFullName -AccessToken $GitHubAccessToken
+$gitHubApi = Get-GitHubApi -RepositoryFullName $RepositoryFullName -AccessToken $GitHubAccessToken
 $releases = $gitHubApi.GetReleases()
 $versionIndex = Build-VersionsManifest -Releases $releases -Configuration $configuration
 $versionIndex | ConvertTo-Json -Depth 5 | Out-File $OutputFile -Encoding UTF8NoBOM -Force

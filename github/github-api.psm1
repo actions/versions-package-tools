@@ -145,19 +145,17 @@ class GitHubApi
 
 function Get-GitHubApi {
     param (
-        [Parameter(ParameterSetName = 'RepositoryOwner')]
-        [Parameter(ParameterSetName = 'RepositoryName')]
+        [Parameter(ParameterSetName = 'RepositorySingle')]
+        [string] $RepositoryFullName,
+        [Parameter(ParameterSetName = 'RepositorySplitted')]
         [string] $RepositoryOwner,
-
-        [Parameter(ParameterSetName = 'RepositoryName')]
+        [Parameter(ParameterSetName = 'RepositorySplitted')]
         [string] $RepositoryName,
-
         [string] $AccessToken
     )
 
-    # Split repository name (like 'actions/versions-package-tools') in case when owner is not set
-    if (-not $RepositoryOwner) {
-        $RepositoryOwner = $RepositoryName.Split('/')[0]
+    if ($PSCmdlet.ParameterSetName -eq "RepositorySingle") {
+        $RepositoryOwner, $RepositoryName = $Repository.Split('/', 2)
     }
 
     return [GitHubApi]::New($RepositoryOwner, $RepositoryName, $AccessToken)

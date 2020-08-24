@@ -81,7 +81,7 @@ function Queue-Builds {
     }
 }
 
-$gitHubApi = Get-GitHubApi -RepositoryName $RepositoryFullName -AccessToken $AccessToken
+$gitHubApi = Get-GitHubApi -RepositoryFullName $RepositoryFullName -AccessToken $AccessToken
 
 Write-Host "Versions to build: $ToolVersions"
 Queue-Builds -GitHubApi $gitHubApi `
