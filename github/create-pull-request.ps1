@@ -85,8 +85,7 @@ Write-Host "Push branch: $BranchName"
 Git-PushBranch -Name $BranchName -Force $true
 
 $gitHubApi = Get-GitHubApi -RepositoryFullName $RepositoryFullName -AccessToken $AccessToken
-$repositoryOwner = $RepositoryFullName.Split('/')[0]
-$pullRequest = $gitHubApi.GetPullRequest($BranchName, $repositoryOwner)
+$pullRequest = $gitHubApi.GetPullRequest($BranchName)
 
 if ($pullRequest.Count -gt 0) {
     Write-Host "Update pull request"

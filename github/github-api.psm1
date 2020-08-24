@@ -6,6 +6,7 @@ class GitHubApi
 {
     [string] $BaseUrl
     [object] $AuthHeader
+    [string] $RepositoryOwner
 
     GitHubApi(
         [string] $AccountName,
@@ -14,6 +15,7 @@ class GitHubApi
     ) {
         $this.BaseUrl = $this.BuildBaseUrl($AccountName, $ProjectName)
         $this.AuthHeader = $this.BuildAuth($AccessToken)
+        $this.RepositoryOwner = $AccountName
     }
 
     [object] hidden BuildAuth([string]$AccessToken) {
@@ -42,9 +44,9 @@ class GitHubApi
         return $this.InvokeRestMethod($url, 'Post', $null, $requestBody)
     }
 
-    [object] GetPullRequest([string]$BranchName, [string]$RepositoryOwner){
+    [object] GetPullRequest([string]$BranchName){
         $url = "pulls"
-        return $this.InvokeRestMethod($url, 'GET', "head=${RepositoryOwner}:$BranchName&base=main", $null)
+        return $this.InvokeRestMethod($url, 'GET', "head=$($this.RepositoryOwner):${BranchName}&base=main", $null)
     }
 
     [object] UpdatePullRequest([string]$Title, [string]$Body, [string]$BranchName, [string]$PullRequestNumber){
