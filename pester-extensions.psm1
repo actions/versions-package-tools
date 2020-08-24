@@ -4,6 +4,22 @@ Pester extension that allows to run command and validate exit code
 .EXAMPLE
 "python file.py" | Should -ReturnZeroExitCode
 #>
+
+function Get-CommandResult {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string] $Command,
+        [switch] $Multiline
+    )
+    # Bash trick to suppress and show error output because some commands write to stderr (for example, "python --version")
+    $stdout = & bash -c "$Command 2>&1"
+    $exitCode = $LASTEXITCODE
+    return @{
+        Output = If ($Multiline -eq $true) { $stdout } else { [string]$stdout }
+        ExitCode = $exitCode
+    }
+}
+
 function ShouldReturnZeroExitCode {
     Param(
         [String] $ActualValue,
