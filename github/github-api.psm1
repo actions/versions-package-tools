@@ -155,7 +155,7 @@ function Get-GitHubApi {
     )
 
     if ($PSCmdlet.ParameterSetName -eq "RepositorySingle") {
-        $RepositoryOwner, $RepositoryName = $Repository.Split('/', 2)
+        $RepositoryOwner, $RepositoryName = $RepositoryFullName.Split('/', 2)
     }
 
     return [GitHubApi]::New($RepositoryOwner, $RepositoryName, $AccessToken)
