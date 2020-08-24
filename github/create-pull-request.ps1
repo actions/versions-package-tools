@@ -84,7 +84,7 @@ Git-CommitAllChanges -Message $CommitMessage
 Write-Host "Push branch: $BranchName"
 Git-PushBranch -Name $BranchName -Force $true
 
-$gitHubApi = Get-GitHubApi -RepositoryFullName $RepositoryFullName -AccessToken $AccessToken
+$gitHubApi = Get-GitHubApi -RepositoryName $RepositoryFullName -AccessToken $AccessToken
 $repositoryOwner = $RepositoryFullName.Split('/')[0]
 $pullRequest = $gitHubApi.GetPullRequest($BranchName, $repositoryOwner)
 

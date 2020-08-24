@@ -8,10 +8,11 @@ class GitHubApi
     [object] $AuthHeader
 
     GitHubApi(
-        [string] $RepositoryFullName,
+        [string] $AccountName,
+        [string] $ProjectName,
         [string] $AccessToken
     ) {
-        $this.BaseUrl = $this.BuildBaseUrl($RepositoryFullName)
+        $this.BaseUrl = $this.BuildBaseUrl($AccountName, $ProjectName)
         $this.AuthHeader = $this.BuildAuth($AccessToken)
     }
 
@@ -25,8 +26,8 @@ class GitHubApi
         }
     }
 
-    [string] hidden BuildBaseUrl([string]$RepositoryFullName) {
-        return "https://api.github.com/repos/$RepositoryFullName"
+    [string] hidden BuildBaseUrl([string]$RepositoryOwner, [string]$RepositoryName) {
+        return "https://api.github.com/repos/$RepositoryOwner/$RepositoryName"
     }
 
     [object] CreateNewPullRequest([string]$Title, [string]$Body, [string]$BranchName){
@@ -144,9 +145,20 @@ class GitHubApi
 
 function Get-GitHubApi {
     param (
-        [string] $RepositoryFullName,
+        [Parameter(ParameterSetName = 'RepositoryOwner')]
+        [Parameter(ParameterSetName = 'RepositoryName')]
+        [string] $RepositoryOwner,
+
+        [Parameter(ParameterSetName = 'RepositoryName')]
+        [string] $RepositoryName,
+
         [string] $AccessToken
     )
 
-    return [GitHubApi]::New($RepositoryFullName, $AccessToken)
+    # Split repository name (like 'actions/versions-package-tools') in case when owner is not set
+    if (-not $RepositoryOwner) {
+        $RepositoryOwner = $RepositoryName.Split('/')[0]
+    }
+
+    return [GitHubApi]::New($RepositoryOwner, $RepositoryName, $AccessToken)
 }
