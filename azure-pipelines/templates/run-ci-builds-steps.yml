@@ -2,28 +2,14 @@ steps:
 - checkout: self
 
 - task: PowerShell@2
-  displayName: 'Get source version'
-  inputs:
-    TargetType: inline
-    script: |
-      $url = "https://api.github.com/repos/$(REPOSITORY)/commits/$(BRANCH)"
-      $commit = Invoke-RestMethod -Uri $url -Method "GET"
-      Write-Output "##vso[task.setvariable variable=COMMIT_SHA]$($commit.sha)"
-
-- task: PowerShell@2
   displayName: 'Run builds'
   inputs:
     targetType: filePath
-    filePath: './azure-devops/run-ci-builds.ps1'
+    filePath: './github/run-ci-builds.ps1'
     arguments: |
-        -TeamFoundationCollectionUri $(System.TeamFoundationCollectionUri) `
-        -AzureDevOpsProjectName $(System.TeamProject) `
-        -AzureDevOpsAccessToken $(System.AccessToken) `
-        -SourceBranch $(BRANCH) `
-        -DefinitionId $(DEFINITION_ID) `
-        -SourceVersion $(COMMIT_SHA) `
-        -ManifestLink $(MANIFEST_URL) `
-        -WaitForBuilds $(WAIT_FOR_BUILDS) `
+        -RepositoryFullName $(REPOSITORY_FULL_NAME) `
+        -AccessToken $(GITHUB_TOKEN) `
+        -WorkflowFileName $(WORKFLOW_FILE_NAME) `
+        -WorkflowDispatchRef $(DISPATCH_REF) `
         -ToolVersions "$(ToolVersions)" `
-        -RetryIntervalSec $(INTERVAL_SEC) `
-        -RetryCount $(RETRY_COUNT)
+        -PublishReleases $(PUPLISH_RELEASES)

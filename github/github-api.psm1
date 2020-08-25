@@ -5,8 +5,8 @@ The module that contains a bunch of methods to interact with GitHub API V3
 class GitHubApi
 {
     [string] $BaseUrl
-    [string] $RepoOwner
     [object] $AuthHeader
+    [string] $RepositoryOwner
 
     GitHubApi(
         [string] $AccountName,
@@ -15,6 +15,7 @@ class GitHubApi
     ) {
         $this.BaseUrl = $this.BuildBaseUrl($AccountName, $ProjectName)
         $this.AuthHeader = $this.BuildAuth($AccessToken)
+        $this.RepositoryOwner = $AccountName
     }
 
     [object] hidden BuildAuth([string]$AccessToken) {
@@ -43,9 +44,9 @@ class GitHubApi
         return $this.InvokeRestMethod($url, 'Post', $null, $requestBody)
     }
 
-    [object] GetPullRequest([string]$BranchName, [string]$RepositoryOwner){
+    [object] GetPullRequest([string]$BranchName){
         $url = "pulls"
-        return $this.InvokeRestMethod($url, 'GET', "head=${RepositoryOwner}:$BranchName&base=main", $null)
+        return $this.InvokeRestMethod($url, 'GET', "head=$($this.RepositoryOwner):${BranchName}&base=main", $null)
     }
 
     [object] UpdatePullRequest([string]$Title, [string]$Body, [string]$BranchName, [string]$PullRequestNumber){
@@ -80,6 +81,35 @@ class GitHubApi
         }
 
         return $releases
+    }
+
+    [void] DispatchWorkflow([string]$EventType) {
+        $url = "dispatches"
+        $body = @{
+            event_type = $EventType
+        } | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $body)
+    }
+
+    [object] GetWorkflowRuns([string]$WorkflowFileName) {
+        $url = "actions/workflows/$WorkflowFileName/runs"
+        return $this.InvokeRestMethod($url, 'GET', $null, $null)
+    }
+
+    [object] GetWorkflowRunJobs([string]$WorkflowRunId) {
+        $url = "actions/runs/$WorkflowRunId/jobs"
+        return $this.InvokeRestMethod($url, 'GET', $null, $null)
+    }
+
+    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [object]$Inputs) {
+        $url = "actions/workflows/${WorkflowFileName}/dispatches"
+        $body = @{
+            ref = $Ref
+            inputs = $Inputs
+        } | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $body)
     }
 
     [string] hidden BuildUrl([string]$Url, [string]$RequestParams) {
@@ -117,10 +147,18 @@ class GitHubApi
 
 function Get-GitHubApi {
     param (
-        [string] $AccountName,
-        [string] $ProjectName,
+        [Parameter(ParameterSetName = 'RepositorySingle')]
+        [string] $RepositoryFullName,
+        [Parameter(ParameterSetName = 'RepositorySplitted')]
+        [string] $RepositoryOwner,
+        [Parameter(ParameterSetName = 'RepositorySplitted')]
+        [string] $RepositoryName,
         [string] $AccessToken
     )
 
-    return [GitHubApi]::New($AccountName, $ProjectName, $AccessToken)
+    if ($PSCmdlet.ParameterSetName -eq "RepositorySingle") {
+        $RepositoryOwner, $RepositoryName = $RepositoryFullName.Split('/', 2)
+    }
+
+    return [GitHubApi]::New($RepositoryOwner, $RepositoryName, $AccessToken)
 }
