@@ -62,7 +62,6 @@ function Validate-ReleaseAvailability {
             Write-Host "Release was successfully created: $($createdRelease.html_url)"
             return
         }
-        $RetryCount
 
         $RetryCount--
         Start-Sleep -Seconds $RetryIntervalSec

@@ -103,14 +103,17 @@ class GitHubApi
         return $this.InvokeRestMethod($url, 'GET', $null, $null)
     }
 
-    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [object]$Inputs) {
+    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [string]$Inputs) {
         $url = "actions/workflows/${WorkflowFileName}/dispatches"
-        $body = @{
-            ref = $Ref
-            inputs = $Inputs
-        } | ConvertTo-Json
+        $body = @{ ref = $Ref }
+        
+        if ($Inputs) {
+            $body.inputs = $Inputs
+        }
 
-        $this.InvokeRestMethod($url, 'POST', $null, $body)
+        $jsonBody = $body | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $jsonBody)
     }
 
     [string] hidden BuildUrl([string]$Url, [string]$RequestParams) {
