@@ -83,10 +83,11 @@ class GitHubApi
         return $releases
     }
 
-    [void] DispatchWorkflow([string]$EventType) {
+    [void] CreateRepositoryDispatch([string]$EventType, [object]$EventPayload) {
         $url = "dispatches"
         $body = @{
             event_type = $EventType
+            client_payload = $EventPayload
         } | ConvertTo-Json
 
         $this.InvokeRestMethod($url, 'POST', $null, $body)
