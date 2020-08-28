@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Trigger runs on the workflow_dispatch event to build and upload tool packages
+Trigger runs on the workflow_dispatch event to create tool release
 
 .PARAMETER RepositoryFullName
 Required parameter. The owner and repository name. For example, 'actions/versions-package-tools'
