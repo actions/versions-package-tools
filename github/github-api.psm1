@@ -103,7 +103,7 @@ class GitHubApi
         return $this.InvokeRestMethod($url, 'GET', $null, $null)
     }
 
-    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [string]$Inputs) {
+    [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [object]$Inputs) {
         $url = "actions/workflows/${WorkflowFileName}/dispatches"
         $body = @{ ref = $Ref }
         
