@@ -5,7 +5,7 @@ Trigger runs on the workflow_dispatch event to build and upload tool packages
 .PARAMETER RepositoryFullName
 Required parameter. The owner and repository name. For example, 'actions/versions-package-tools'
 .PARAMETER AccessToken
-Required parameter. PAT Token to authorize
+Required parameter. PAT to authorize
 .PARAMETER WorkflowFileName
 Required parameter. The name of workflow file that will be triggered
 .PARAMETER WorkflowDispatchRef

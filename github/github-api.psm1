@@ -83,10 +83,11 @@ class GitHubApi
         return $releases
     }
 
-    [void] DispatchWorkflow([string]$EventType) {
+    [void] CreateRepositoryDispatch([string]$EventType, [object]$EventPayload) {
         $url = "dispatches"
         $body = @{
             event_type = $EventType
+            client_payload = $EventPayload
         } | ConvertTo-Json
 
         $this.InvokeRestMethod($url, 'POST', $null, $body)
@@ -104,12 +105,15 @@ class GitHubApi
 
     [void] CreateWorkflowDispatch([string]$WorkflowFileName, [string]$Ref, [object]$Inputs) {
         $url = "actions/workflows/${WorkflowFileName}/dispatches"
-        $body = @{
-            ref = $Ref
-            inputs = $Inputs
-        } | ConvertTo-Json
+        $body = @{ ref = $Ref }
+        
+        if ($Inputs) {
+            $body.inputs = $Inputs
+        }
 
-        $this.InvokeRestMethod($url, 'POST', $null, $body)
+        $jsonBody = $body | ConvertTo-Json
+
+        $this.InvokeRestMethod($url, 'POST', $null, $jsonBody)
     }
 
     [string] hidden BuildUrl([string]$Url, [string]$RequestParams) {
