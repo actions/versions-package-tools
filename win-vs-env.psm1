@@ -3,7 +3,7 @@
 ###
 
 function Get-VSWhere {
-    $vswhere = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe";
+    $vswhere = Join-Path $env:ProgramFiles(x86) 'Microsoft Visual Studio\Installer\vswhere.exe'
 
     if (-not (Test-Path $vswhere )) {
         [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
@@ -34,7 +34,7 @@ function Invoke-Environment
 }
 
 function Get-VSInstallationPath {
-    Write-Host "ProgramFiles(x86) - ${env:ProgramFiles(x86)}"
+    Write-Host "ProgramFiles(x86) - $env:ProgramFiles(x86)"
     $vswhere = Get-VSWhere
     Write-Host "vswhere - $vswhere"
     $installationPath = & $vswhere -prerelease -legacy -latest -property installationPath
