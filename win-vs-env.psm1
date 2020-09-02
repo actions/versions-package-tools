@@ -34,9 +34,11 @@ function Invoke-Environment
 }
 
 function Get-VSInstallationPath {
+    Write-Host "ProgramFiles(x86) - ${env:ProgramFiles(x86)}"
     $vswhere = Get-VSWhere
+    Write-Host "vswhere - $vswhere"
     $installationPath = & $vswhere -prerelease -legacy -latest -property installationPath
-
+    Write-Host "Done"
     return $installationPath
 }
 
