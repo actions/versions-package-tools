@@ -38,7 +38,7 @@ function Get-VSInstallationPath {
     $vswhere = Get-VSWhere
     Write-Host "vswhere - $vswhere"
     $installationPath = & $vswhere -prerelease -legacy -latest -property installationPath
-    Write-Host "Done"
+    Write-Host "installationPath - $installationPath"
     return $installationPath
 }
 
