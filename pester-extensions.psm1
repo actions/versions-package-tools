@@ -12,7 +12,12 @@ function Get-CommandResult {
         [switch] $Multiline
     )
     # Bash trick to suppress and show error output because some commands write to stderr (for example, "python --version")
-    $stdout = & bash -c "$Command 2>&1"
+    if ($IsWindows){
+        [string[]]$stdout = & $env:comspec /c "$Command 2>&1"
+    }
+    else{
+        $stdout = & bash -c "$Command 2>&1"
+    }
     $exitCode = $LASTEXITCODE
     return @{
         Output = If ($Multiline -eq $true) { $stdout } else { [string]$stdout }
