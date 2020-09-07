@@ -7,7 +7,7 @@ Pester extension that allows to run command and validate exit code
 
 function Get-CommandResult {
     Param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory)]
         [string] $Command,
         [switch] $Multiline
     )
