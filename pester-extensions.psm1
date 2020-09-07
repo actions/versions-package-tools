@@ -10,11 +10,7 @@ function Get-CommandResult {
         [Parameter(Mandatory)][string] $Command
     )
     # CMD trick to suppress and show error output because some commands write to stderr (for example, "python --version")
-    if ($IsWindows) {
-        [string[]]$output = & $env:comspec /c "$Command 2>&1"
-    } else {
-        $output = & bash -c "$Command 2>&1"
-    }
+    [string[]]$output = & $env:comspec /c "$Command 2>&1"
     $exitCode = $LASTEXITCODE
 
     return @{
