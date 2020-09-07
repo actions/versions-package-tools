@@ -7,9 +7,7 @@ Pester extension that allows to run command and validate exit code
 
 function Get-CommandResult {
     Param (
-        [Parameter(Mandatory)]
-        [string] $Command,
-        [switch] $Multiline
+        [Parameter(Mandatory)][string] $Command
     )
     # CMD trick to suppress and show error output because some commands write to stderr (for example, "python --version")
     if ($IsWindows) {
@@ -20,7 +18,7 @@ function Get-CommandResult {
     $exitCode = $LASTEXITCODE
 
     return @{
-        Output = If ($Multiline -eq $true) { $output } else { [string]$output }
+        Output = $output
         ExitCode = $exitCode
     }
 }
