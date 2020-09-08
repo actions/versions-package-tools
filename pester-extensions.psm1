@@ -11,9 +11,9 @@ function Get-CommandResult {
         [string] $Command,
         [switch] $Multiline
     )
-    # CMD trick to suppress and show error output because some commands write to stderr (for example, "python --version")
+    # CMD and bash trick to suppress and show error output because some commands write to stderr (for example, "python --version")
     If ($IsWindows) {
-        [string[]]$output = & $env:comspec /c "$Command 2>&1"
+        $output = & $env:comspec /c "$Command 2>&1"
     } else {
         $output = & bash -c "$Command 2>&1"
     }
@@ -27,7 +27,7 @@ function Get-CommandResult {
 
 function ShouldReturnZeroExitCode {
     Param(
-        [string] $ActualValue,
+        [String] $ActualValue,
         [switch] $Negate,
         [string] $Because # This parameter is unused by we need it to match Pester asserts signature
     )
