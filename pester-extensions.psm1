@@ -6,23 +6,28 @@ Pester extension that allows to run command and validate exit code
 #>
 
 function Get-CommandResult {
-    param (
+    Param (
         [Parameter(Mandatory=$true)]
         [string] $Command,
         [switch] $Multiline
     )
-    # Bash trick to suppress and show error output because some commands write to stderr (for example, "python --version")
-    $stdout = & bash -c "$Command 2>&1"
+    # CMD trick to suppress and show error output because some commands write to stderr (for example, "python --version")
+    If ($IsWindows) {
+        [string[]]$output = & $env:comspec /c "$Command 2>&1"
+    } else {
+        $output = & bash -c "$Command 2>&1"
+    }
     $exitCode = $LASTEXITCODE
+
     return @{
-        Output = If ($Multiline -eq $true) { $stdout } else { [string]$stdout }
+        Output = If ($Multiline -eq $true) { $output } else { [string]$output }
         ExitCode = $exitCode
     }
 }
 
 function ShouldReturnZeroExitCode {
     Param(
-        [String] $ActualValue,
+        [string] $ActualValue,
         [switch] $Negate,
         [string] $Because # This parameter is unused by we need it to match Pester asserts signature
     )
