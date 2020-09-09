@@ -83,3 +83,26 @@ function IsNixPlatform {
 
     return ($Platform -match "macos") -or ($Platform -match "darwin") -or ($Platform -match "ubuntu") -or ($Platform -match "linux")
 }
+
+<#
+.SYNOPSIS
+Get root directory of selected tool
+#>
+function GetToolDirectory {
+    param(
+        [Parameter(Mandatory=$true)]
+        [String]$ToolName,
+        [Parameter(Mandatory=$true)]
+        [String]$Version,
+        [Parameter(Mandatory=$true)]
+        [String]$Architecture
+    )
+    $targetPath = $env:AGENT_TOOLSDIRECTORY
+    if ([string]::IsNullOrEmpty($targetPath)) {
+        # GitHub Windows images don't have `AGENT_TOOLSDIRECTORY` variable
+        $targetPath = $env:RUNNER_TOOL_CACHE
+    }
+    $ToolcachePath = Join-Path -Path $targetPath -ChildPath $ToolName
+    $ToolcacheVersionPath = Join-Path -Path $ToolcachePath -ChildPath $Version
+    return Join-Path $ToolcacheVersionPath $Architecture
+}
