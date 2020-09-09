@@ -104,7 +104,5 @@ function GetToolDirectory {
     }
     $ToolcachePath = Join-Path -Path $targetPath -ChildPath $ToolName
     $ToolcacheVersionPath = Join-Path -Path $ToolcachePath -ChildPath $Version
-    $toolDirectory = Join-Path $ToolcacheVersionPath $Architecture
-
-    return $toolDirectory
+    return Join-Path $ToolcacheVersionPath $Architecture
 }
