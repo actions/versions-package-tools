@@ -1,17 +1,3 @@
-function Validate-FiltersFormat {
-    param (
-        [Parameter(Mandatory)] [string[]] $Filters
-    )
-
-    foreach($filter in $Filters) {
-        $filter.Split('.') | ForEach-Object {
-            if (($_ -notmatch '^\d+$') -and ($_ -ne '*')) {
-                throw "Invalid filter format - $filter"
-            }
-        }
-    }
-}
-
 function Format-Versions {
     param (
         [Parameter(Mandatory)] [string[]] $Versions

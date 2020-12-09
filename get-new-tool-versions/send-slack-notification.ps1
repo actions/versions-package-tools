@@ -27,10 +27,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolVersion,
 
-    [Parameter(Mandatory)]
-    [ValidateNotNullOrEmpty()]
     [System.String]$PipelineUrl,
-
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
 )
 
@@ -38,7 +35,10 @@ param(
 Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
-$text = "The following versions of '$toolName' are available to upload: $toolVersion\nLink to the pipeline: $pipelineUrl"
+$text = "The following versions of '$toolName' are available to upload: $toolVersion"
+if ($PipelineUrl) {
+    $text += "\nLink to the pipeline: $pipelineUrl"
+}
 $jsonBodyMessage = @"
 {
     "blocks": [
