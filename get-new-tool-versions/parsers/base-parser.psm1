@@ -4,7 +4,7 @@ class BaseVersionsParser {
 
     [SemVer[]] GetAvailableVersions() {
         $allVersionsRaw = $this.ParseAllAvailableVersions()
-        $allVersions = $allVersionsRaw | ForEach-Object { Write-Host $_; $this.FormatVersion($_) }
+        $allVersions = $allVersionsRaw | ForEach-Object { $this.FormatVersion($_) }
         $filteredVersions = $allVersions | Where-Object { $this.ShouldIncludeVersion($_) }
         return $filteredVersions
     }
@@ -26,7 +26,6 @@ class BaseVersionsParser {
     }
 
     hidden [string] BuildGitHubFileUrl($OrganizationName, $RepositoryName, $BranchName, $FilePath) {
-        # https://raw.githubusercontent.com/actions/node-versions/main/versions-manifest.json
         return "https://raw.githubusercontent.com/${OrganizationName}/${RepositoryName}/${BranchName}/${FilePath}"
     }
 }
