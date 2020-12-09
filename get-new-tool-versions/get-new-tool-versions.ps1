@@ -17,61 +17,24 @@ Optional parameter. Retry count
 #>
 
 param (
-    [Parameter(Mandatory)] [string] $DistURL,
-    [Parameter(Mandatory)] [string] $ManifestLink,
-    [string[]] $VersionFilterToInclude,
-    [string[]] $VersionFilterToExclude,
-    [UInt32] $RetryIntervalSec = 60,
-    [UInt32] $RetryCount = 3
+    [Parameter(Mandatory)] [string] $ToolName
 )
 
-Import-Module (Join-Path $PSScriptRoot "helpers.psm1")
+Import-Module "$PSScriptRoot/parsers/parsers-factory.psm1"
 
-function Get-VersionsByUrl {
-    param (
-        [Parameter(Mandatory)] [string] $ToolPackagesUrl,
-        [Parameter(Mandatory)] [UInt32] $RetryIntervalSec,
-        [Parameter(Mandatory)] [UInt32] $RetryCount
-    )
+$ToolVersionParser = Get-ToolVersionsParser -ToolName $ToolName
+$VersionsFromDist = $ToolVersionParser.GetAvailableVersions()
+$VersionsFromManifest = $ToolVersionParser.GetUploadedVersions()
 
-    $packages = Invoke-RestMethod $ToolPackagesUrl -MaximumRetryCount $RetryCount -RetryIntervalSec $RetryIntervalSec
-    return $packages.version
-}
+Write-Host "Dist"
+$VersionsFromDist | ForEach-Object { Write-Host $_ }
+Write-Host "Manifest"
+$VersionsFromManifest | ForEach-Object { Write-Host $_ }
 
-if ($VersionFilterToInclude) {
-    Validate-FiltersFormat -Filters $VersionFilterToInclude
-}
+$VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 
-if ($VersionFilterToExclude) {
-    Validate-FiltersFormat -Filters $VersionFilterToExclude
-}
-
-Write-Host "Get the packages list from $DistURL"
-$versionsFromDist = Get-VersionsByUrl -ToolPackagesUrl $DistURL `
-                                      -RetryIntervalSec $RetryIntervalSec `
-                                      -RetryCount $RetryCount
-
-Write-Host "Get the packages list from $ManifestLink"
-[Version[]] $versionsFromManifest = Get-VersionsByUrl -ToolPackagesUrl $ManifestLink `
-                                                      -RetryIntervalSec $RetryIntervalSec `
-                                                      -RetryCount $RetryCount
-
-[Version[]] $formattedVersions = Format-Versions -Versions $versionsFromDist
-
-$formattedVersions = Select-VersionsByFilter -Versions $formattedVersions `
-                                             -IncludeFilters $VersionFilterToInclude `
-                                             -ExcludeFilters $VersionFilterToExclude
-
-if (-not $formattedVersions) {
-    Write-Host "Couldn't find available versions with current filters"
-    exit 1
-}
-
-$versionsToBuild = Skip-ExistingVersions -VersionsFromManifest $versionsFromManifest `
-                                         -VersionsFromDist $formattedVersions
-
-if ($versionsToBuild) {
-    $availableVersions = $versionsToBuild -join ","
+if ($VersionsToBuild) {
+    $availableVersions = $VersionsToBuild -join ","
     $toolVersions = $availableVersions.Replace(",",", ")
     Write-Host "The following versions are available to build:`n$toolVersions"
     Write-Output "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]$toolVersions"

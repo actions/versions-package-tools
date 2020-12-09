@@ -6,10 +6,7 @@ steps:
     targetType: filePath
     filePath: './get-new-tool-versions/get-new-tool-versions.ps1'
     arguments: |
-        -DistURL "$(DIST_URL)" `
-        -ManifestLink "$(MANIFEST_URL)" `
-        -VersionFilterToInclude $(INCLUDE_FILTER) `
-        -VersionFilterToExclude $(EXCLUDE_FILTER)
+        -ToolName "$(TOOL_NAME)"
 
 - task: PowerShell@2
   displayName: 'Cancel build'
