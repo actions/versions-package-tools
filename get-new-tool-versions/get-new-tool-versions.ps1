@@ -19,10 +19,9 @@ $VersionsFromManifest = $ToolVersionParser.GetUploadedVersions()
 $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 
 if ($VersionsToBuild) {
-    $availableVersions = $VersionsToBuild -join ","
-    $toolVersions = $availableVersions.Replace(",",", ")
-    Write-Host "The following versions are available to build:`n$toolVersions"
-    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]$toolVersions"
+    $availableVersions = $VersionsToBuild -join ", "
+    Write-Host "The following versions are available to build:`n${availableVersions}"
+    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]${availableVersions}"
 } else {
     Write-Host "There aren't versions to build"
 }
