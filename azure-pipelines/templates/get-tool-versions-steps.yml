@@ -10,7 +10,7 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Set env variable'
-  condition: and(succeeded(), ne(variables['TOOL_NAME'], "Python"))
+  condition: and(succeeded(), ne(variables['TOOL_NAME'], 'Python'))
   inputs:
     TargetType: inline
     script: |
