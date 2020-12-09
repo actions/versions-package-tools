@@ -26,11 +26,6 @@ $ToolVersionParser = Get-ToolVersionsParser -ToolName $ToolName
 $VersionsFromDist = $ToolVersionParser.GetAvailableVersions()
 $VersionsFromManifest = $ToolVersionParser.GetUploadedVersions()
 
-Write-Host "Dist"
-$VersionsFromDist | ForEach-Object { Write-Host $_ }
-Write-Host "Manifest"
-$VersionsFromManifest | ForEach-Object { Write-Host $_ }
-
 $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 
 if ($VersionsToBuild) {

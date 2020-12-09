@@ -9,7 +9,7 @@ class PythonVersionsParser: BaseVersionsParser {
 
     hidden [string[]] ParseAllAvailableVersions() {
         $stableVersionsUrl = "https://www.python.org/ftp/python"
-        $stableVersionsHtmlRaw = Invoke-WebRequest $stableVersionsUrl
+        $stableVersionsHtmlRaw = Invoke-WebRequest $stableVersionsUrl -MaximumRetryCount $this.ApiRetryCount -RetryIntervalSec $this.ApiRetryIntervalSeconds
         $stableVersionsList = $stableVersionsHtmlRaw.Links.href | Where-Object {
             $parsed = $null
             return $_.EndsWith("/") -and [SemVer]::TryParse($_.Replace("/", ""), [ref]$parsed)
@@ -17,12 +17,12 @@ class PythonVersionsParser: BaseVersionsParser {
 
         return $stableVersionsList | ForEach-Object {
             $subVersionsUrl = "${stableVersionsUrl}/${_}"
-            $subVersionsHtmlRaw = Invoke-WebRequest $subVersionsUrl
+            $subVersionsHtmlRaw = Invoke-WebRequest $subVersionsUrl -MaximumRetryCount $this.ApiRetryCount -RetryIntervalSec $this.ApiRetryIntervalSeconds
             return $subVersionsHtmlRaw.Links.href | ForEach-Object {
                 if ($_ -match "^Python-(\d+\.\d+\.\d+[a-z]{0,2}\d*)\.tgz$") {
                     return $Matches[1]
                 }
-            } | ForEach-Object { $_ } | Where-Object { $_ }
+            }
         }
     }
 
@@ -48,7 +48,7 @@ class PythonVersionsParser: BaseVersionsParser {
     }
 
     [bool] ShouldIncludeVersion([SemVer]$Version) {
-        # For Go, we include all versions greater than 1.12
+        # For Python, we include all versions greater than 3.9.0
         return $Version -gt [SemVer]"3.9.0"
     }
 }
