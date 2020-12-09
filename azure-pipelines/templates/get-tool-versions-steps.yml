@@ -9,7 +9,7 @@ steps:
         -ToolName "$(TOOL_NAME)"
 
 - task: PowerShell@2
-  displayName: 'Set env variable'
+  displayName: 'Set PIPELINE_URL variable'
   condition: and(succeeded(), ne(variables['TOOL_NAME'], 'Python'))
   inputs:
     TargetType: inline
@@ -36,5 +36,5 @@ steps:
       -Url "$(SLACK_CHANNEL_URL)" `
       -ToolName "$(TOOL_NAME)" `
       -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
-      -PipelineUrl "$(PIPELINE_URL)" `
+      -PipelineUrl "${{ variables.PIPELINE_URL }}" `
       -ImageUrl "$(IMAGE_URL)"
