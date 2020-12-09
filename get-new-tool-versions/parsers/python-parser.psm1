@@ -41,7 +41,6 @@ class PythonVersionsParser: BaseVersionsParser {
         switch ($Label) {
             "a" { return "alpha" }
             "b" { return "beta" }
-            "rc" { return "rc" }
         }
 
         return $Label
