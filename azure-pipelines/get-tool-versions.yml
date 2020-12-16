@@ -43,7 +43,7 @@ stages:
     - template: /azure-pipelines/templates/check-versions.yml
 
 - stage: Trigger_Builds
-  dependsOn: Check_New_Versions
+  dependsOn: [Find_New_Versions, Check_New_Versions]
   condition: and(succeeded(), ne(variables['WORKFLOW_FILE_NAME'], ''))
   jobs:
   - deployment: Run_Builds
