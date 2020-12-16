@@ -37,9 +37,12 @@ stages:
     pool:
       name: $(PoolName)
       vmImage: $(VmImage)
+    variables:
+    # map the output variable from A into this job
+      ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
     steps:
     - pwsh: |
-        $NewVersions = "$[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]".Trim()
+        $NewVersions = "$(ToolVersions)"
         if ($NewVersions) {
             Write-Host "The following versions were found: $NewVersions"
         } else {
