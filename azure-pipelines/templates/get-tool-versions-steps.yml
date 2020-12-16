@@ -23,7 +23,7 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Change build name'
-  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
+  #condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
   inputs:
     TargetType: inline
     script: |
@@ -31,14 +31,14 @@ steps:
       Write-Host "##vso[build.updatebuildnumber]$newBuildName"
 
 - task: PowerShell@2	
-  displayName: 'Send Slack notification'	
-  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))	
-  inputs:	
-    targetType: filePath	
-    filePath: './get-new-tool-versions/send-slack-notification.ps1'	
-    arguments: |	
-      -Url "$(SLACK_CHANNEL_URL)" `	
-      -ToolName "$(TOOL_NAME)" `	
-      -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `	
-      -PipelineUrl "${{ variables.PIPELINE_URL }}" `	
+  displayName: 'Send Slack notification'
+  #condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
+  inputs:
+    targetType: filePath
+    filePath: './get-new-tool-versions/send-slack-notification.ps1'
+    arguments: |
+      -Url "$(SLACK_CHANNEL_URL)" `
+      -ToolName "$(TOOL_NAME)" `
+      -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
+      -PipelineUrl "$(PipelineUrl)" `
       -ImageUrl "$(IMAGE_URL)"
