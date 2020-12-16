@@ -34,6 +34,9 @@ stages:
   dependsOn: Find_New_Versions
   jobs:
   - job: Check_New_Versions
+    pool:
+      name: $(PoolName)
+      vmImage: $(VmImage)
     steps:
     - pwsh: |
         $NewVersions = "$[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]".Trim()
