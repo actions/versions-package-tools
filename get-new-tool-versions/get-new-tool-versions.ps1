@@ -21,7 +21,7 @@ $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -not
 if ($VersionsToBuild) {
     $availableVersions = $VersionsToBuild -join ", "
     Write-Host "The following versions are available to build:`n${availableVersions}"
-    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]${availableVersions}"
+    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isoutput=true]${availableVersions}"
 } else {
     Write-Host "There aren't versions to build"
 }
