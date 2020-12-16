@@ -39,7 +39,7 @@ stages:
       vmImage: $(VmImage)
     variables:
       ToolVersions: $[ stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
-    condition: and(succeeded(), ne(stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'], ''))
+    condition: and(succeeded(), ne(stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'], ''), ne(variables['WORKFLOW_FILE_NAME'], ''))
     timeoutInMinutes: 180
     environment: 'Get Available Tools Versions - Publishing Approval'
     strategy:
