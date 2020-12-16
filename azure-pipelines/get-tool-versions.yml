@@ -20,29 +20,38 @@ variables:
   VmImage: 'ubuntu-18.04'
 
 stages:
-- stage: Get_New_Versions
+- stage: Find_New_Versions
   dependsOn: []
   jobs:
-  - job: Get_Tool_Versions
+  - job: Find_New_Versions
     pool:
       name: $(PoolName)
       vmImage: $(VmImage)
     steps:
     - template: /azure-pipelines/templates/get-tool-versions-steps.yml
 
-- stage: Trigger_Builds
-  dependsOn: Get_New_Versions
+- stage: Check_New_Versions
+  dependsOn: Find_New_Versions
   jobs:
-  - job: Check_Versions
-    condition: and(succeeded(), ne(stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'], ''))
+  - job: Check_New_Versions
     steps:
-      - pwsh: echo "hello"
+    - pwsh: |
+        $NewVersions = "$[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]".Trim()
+        if ($NewVersions) {
+            Write-Host "The following versions were found: $NewVersions"
+        } else {
+            throw "No new versions were found"
+        }
 
+- stage: Trigger_Builds
+  dependsOn: Check_New_Versions
+  jobs:
   - deployment: Run_Builds
-    dependsOn: Check_Versions
     pool:
       name: $(PoolName)
       vmImage: $(VmImage)
+    variables:
+      ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
     timeoutInMinutes: 180
     environment: 'Get Available Tools Versions - Publishing Approval'
     strategy:
