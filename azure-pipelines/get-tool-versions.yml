@@ -51,7 +51,7 @@ stages:
 
 - stage: Trigger_Builds
   dependsOn: Check_New_Versions
-    condition: and(succeeded(), eq(variables['WORKFLOW_FILE_NAME'], ''))
+  condition: and(succeeded(), eq(variables['WORKFLOW_FILE_NAME'], ''))
   jobs:
   - deployment: Run_Builds
     pool:
