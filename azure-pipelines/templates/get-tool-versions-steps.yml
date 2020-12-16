@@ -19,7 +19,7 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Change build name'
-  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
+  #condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
   inputs:
     TargetType: inline
     script: |
