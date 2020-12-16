@@ -32,9 +32,7 @@ stages:
 
 - stage: Trigger_Builds
   dependsOn: Get_New_Versions
-  variables:
-      ToolVersions: $[ stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
-  condition: and(succeeded(), ne(variables.ToolVersions, ''))
+  condition: and(succeeded(), ne($[ stageDependencies.Get_New_Versions.Get_Tool_Versions.outputs['Get_versions.TOOL_VERSIONS'] ], ''))
   jobs:
   - deployment: Run_Builds
     pool:
