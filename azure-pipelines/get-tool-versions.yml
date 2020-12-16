@@ -39,10 +39,10 @@ stages:
       - pwsh: echo "hello"
 
   - deployment: Run_Builds
+    dependsOn: Check_Versions
     pool:
       name: $(PoolName)
       vmImage: $(VmImage)
-    
     timeoutInMinutes: 180
     environment: 'Get Available Tools Versions - Publishing Approval'
     strategy:
