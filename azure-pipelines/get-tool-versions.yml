@@ -40,14 +40,7 @@ stages:
     variables:
       ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
     steps:
-    - pwsh: |
-        $NewVersions = "$(ToolVersions)"
-        if ($NewVersions) {
-            Write-Host "The following versions were found: $NewVersions"
-        } else {
-            throw "No new versions were found"
-        }
-      displayName: Check versions
+    - template: /azure-pipelines/templates/check-versions.yml
 
 - stage: Trigger_Builds
   dependsOn: Check_New_Versions
