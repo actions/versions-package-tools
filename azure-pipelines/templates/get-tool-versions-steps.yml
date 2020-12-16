@@ -25,16 +25,3 @@ steps:
     script: |
       $newBuildName = "[FOUND] $(Build.BuildNumber)"
       Write-Host "##vso[build.updatebuildnumber]$newBuildName"
-
-- task: PowerShell@2
-  displayName: 'Send Slack notification'
-  condition: and(succeeded(), ne(variables['Get_versions.TOOL_VERSIONS'], ''))
-  inputs:
-    targetType: filePath
-    filePath: './get-new-tool-versions/send-slack-notification.ps1'
-    arguments: |
-      -Url "$(SLACK_CHANNEL_URL)" `
-      -ToolName "$(TOOL_NAME)" `
-      -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
-      -PipelineUrl "${{ variables.PIPELINE_URL }}" `
-      -ImageUrl "$(IMAGE_URL)"
