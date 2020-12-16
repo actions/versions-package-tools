@@ -38,7 +38,8 @@ stages:
       name: $(PoolName)
       vmImage: $(VmImage)
     variables:
-      ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
+      ToolVersions: fake_version
+      #ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
     steps:
     - template: /azure-pipelines/templates/check-versions.yml
 
