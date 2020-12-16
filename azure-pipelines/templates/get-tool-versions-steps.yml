@@ -40,5 +40,5 @@ steps:
       -Url "$(SLACK_CHANNEL_URL)" `
       -ToolName "$(TOOL_NAME)" `
       -ToolVersion "$(Get_versions.TOOL_VERSIONS)" `
-      -PipelineUrl "$(PipelineUrl)" `
+      -PipelineUrl "$(PIPELINE_URL)" `
       -ImageUrl "$(IMAGE_URL)"
