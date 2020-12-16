@@ -36,7 +36,7 @@ Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
 $text = "The following versions of '$toolName' are available to upload: $toolVersion"
-if ($PipelineUrl) {
+if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
     $text += "\nLink to the pipeline: $pipelineUrl"
 }
 $jsonBodyMessage = @"

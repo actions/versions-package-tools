@@ -1,0 +1,41 @@
+steps:
+- task: PowerShell@2
+  displayName: Check Versions
+  condition: and(succeeded(), eq(variables.ToolVersions, ''))
+  inputs:
+    TargetType: inline
+    script: |
+      throw "No new versions were found"
+
+- task: PowerShell@2
+  displayName: 'Set PIPELINE_URL variable'
+  inputs:
+    TargetType: inline
+    script: |
+      $ToolName = "$(TOOL_NAME)"
+      if ($ToolName -eq "Python") {
+        $PipelineUrl = " "
+      } else {
+        $PipelineUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+      }
+      Write-Host "##vso[task.setvariable variable=PIPELINE_URL]$PipelineUrl"
+
+- task: PowerShell@2
+  displayName: 'Change build name'
+  inputs:
+    TargetType: inline
+    script: |
+      $newBuildName = "[FOUND] $(Build.BuildNumber)"
+      Write-Host "##vso[build.updatebuildnumber]$newBuildName"
+
+- task: PowerShell@2	
+  displayName: 'Send Slack notification'
+  inputs:
+    targetType: filePath
+    filePath: './get-new-tool-versions/send-slack-notification.ps1'
+    arguments: |
+      -Url "$(SLACK_CHANNEL_URL)" `
+      -ToolName "$(TOOL_NAME)" `
+      -ToolVersion "$(ToolVersions)" `
+      -PipelineUrl "$(PIPELINE_URL)" `
+      -ImageUrl "$(IMAGE_URL)"
