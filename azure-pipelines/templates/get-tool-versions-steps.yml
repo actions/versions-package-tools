@@ -13,7 +13,7 @@ steps:
   inputs:
     TargetType: inline
     script: |
-      $ToolName = "$(ToolName)"
+      $ToolName = "$(TOOL_NAME)"
       if ($ToolName -eq "Python") {
         $PipelineUrl = " "
       } else {
