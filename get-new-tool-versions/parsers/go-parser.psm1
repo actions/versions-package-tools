@@ -20,6 +20,10 @@ class GoVersionsParser: BaseVersionsParser {
     }
 
     hidden [bool] ShouldIncludeVersion([SemVer]$Version) {
+        if ($Version.PreReleaseLabel) {
+            return $false
+        }
+
         # For Go, we include all versions greater than 1.12
         return $Version -gt [SemVer]"1.12.0"
     }
