@@ -15,7 +15,8 @@ class GoVersionsParser: BaseVersionsParser {
 
     hidden [SemVer] FormatVersion([string]$VersionSpec) {
         $cleanVersion = $VersionSpec -replace "^go", ""
-        return [SemVer]$cleanVersion
+        $semanticVersion = $cleanVersion -replace "(\d+\.\d+\.?\d+?)((?:alpha|beta|rc))(\d*)",'$1-$2.$3'
+        return [SemVer]$semanticVersion
     }
 
     hidden [bool] ShouldIncludeVersion([SemVer]$Version) {
