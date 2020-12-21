@@ -5,7 +5,15 @@ steps:
   inputs:
     TargetType: inline
     script: |
-      throw "No new versions were found"
+      Write-Host "No new versions were found"
+      Import-Module "./azure-devops/azure-devops-api.ps1"
+
+      $azureDevOpsApi = Get-AzureDevOpsApi -TeamFoundationCollectionUri $(System.TeamFoundationCollectionUri) `
+                                           -ProjectName $(System.TeamProject) `
+                                           -AccessToken $(System.AccessToken)
+
+      $AzureDevOpsApi.UpdateBuildStatus($(Build.BuildId), 'Cancelling') | Out-Null
+      Start-Sleep -Seconds 60
 
 - task: PowerShell@2
   displayName: 'Set PIPELINE_URL variable'
