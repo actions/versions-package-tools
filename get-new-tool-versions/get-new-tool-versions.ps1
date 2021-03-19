@@ -3,7 +3,7 @@
 Check and return list of new available tool versions
 
 .PARAMETER ToolName
-Required parameter. The name of tool for which parser is available (Node, Go, Python)
+Required parameter. The name of tool for which parser is available (Node, Go, Python, Xamarin)
 #>
 
 param (
@@ -16,10 +16,18 @@ $ToolVersionParser = Get-ToolVersionsParser -ToolName $ToolName
 $VersionsFromDist = $ToolVersionParser.GetAvailableVersions()
 $VersionsFromManifest = $ToolVersionParser.GetUploadedVersions()
 
-$VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
+$joinChars = ", "
+if ($ToolName -eq "Xamarin") {
+    $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest[$_.name] -notcontains $_.version } | ForEach-Object {
+        '{0,-15} : {1}' -f $_.name, $_.version
+    }
+    $joinChars = "\n"
+} else {
+    $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
+}
 
 if ($VersionsToBuild) {
-    $availableVersions = $VersionsToBuild -join ", "
+    $availableVersions = $VersionsToBuild -join $joinChars
     Write-Host "The following versions are available to build:`n${availableVersions}"
     Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]${availableVersions}"
 } else {

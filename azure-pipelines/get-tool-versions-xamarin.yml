@@ -1,0 +1,37 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+trigger: none
+pr: none
+schedules:
+- cron: "0 8 * * Thu"
+  displayName: Daily build
+  branches:
+    include:
+    - main
+  always: true
+
+variables:
+  PoolName: 'Azure Pipelines'
+  VmImage: 'ubuntu-18.04'
+
+stages:
+- stage: Find_New_Versions
+  dependsOn: []
+  jobs:
+  - job: Find_New_Versions
+    pool:
+      name: $(PoolName)
+      vmImage: $(VmImage)
+    steps:
+    - template: /azure-pipelines/templates/get-tool-versions-steps.yml
+
+- stage: Check_New_Versions
+  dependsOn: Find_New_Versions
+  jobs:
+  - job: Check_New_Versions
+    pool:
+      name: $(PoolName)
+      vmImage: $(VmImage)
+    variables:
+      ToolVersions: $[ stageDependencies.Find_New_Versions.Find_New_Versions.outputs['Get_versions.TOOL_VERSIONS'] ]
+    steps:
+    - template: /azure-pipelines/templates/check-versions.yml
