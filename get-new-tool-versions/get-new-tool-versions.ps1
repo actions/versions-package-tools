@@ -18,10 +18,10 @@ $VersionsFromManifest = $ToolVersionParser.GetUploadedVersions()
 
 $joinChars = ", "
 if ($ToolName -eq "Xamarin") {
-    $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest[$_.name] -notcontains $_.version } | ForEach-Object {
+    $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest[$_.name] -notcontains $_.version } | ForEach-Object {[string]::Empty} {
         '{0,-15} : {1}' -f $_.name, $_.version
     }
-    $joinChars = "\n"
+    $joinChars = "\n\t"
 } else {
     $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
 }
