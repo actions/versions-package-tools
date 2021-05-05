@@ -21,7 +21,7 @@ steps:
     TargetType: inline
     script: |
       $ToolName = "$(TOOL_NAME)"
-      if ($ToolName -eq "Python") {
+      if ($ToolName -in @("Python", "Xamarin")) {
         $PipelineUrl = " "
       } else {
         $PipelineUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
@@ -36,7 +36,7 @@ steps:
       $newBuildName = "[FOUND] $(Build.BuildNumber)"
       Write-Host "##vso[build.updatebuildnumber]$newBuildName"
 
-- task: PowerShell@2	
+- task: PowerShell@2
   displayName: 'Send Slack notification'
   inputs:
     targetType: filePath
