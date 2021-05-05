@@ -21,7 +21,7 @@ steps:
     TargetType: inline
     script: |
       $ToolName = "$(TOOL_NAME)"
-      if ($ToolName -in @("Python", "Xamarin") {
+      if ($ToolName -in @("Python", "Xamarin")) {
         $PipelineUrl = " "
       } else {
         $PipelineUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
