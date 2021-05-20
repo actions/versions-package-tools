@@ -7,7 +7,7 @@ class XamarinVersionsParser: BaseVersionsParser {
     }
 
     [hashtable] GetUploadedVersions() {
-        $url = $this.BuildGitHubFileUrl("actions", "virtual-environments", "main", "images/macos/toolsets/toolset-11.0.json")
+        $url = $this.BuildGitHubFileUrl("actions", "virtual-environments", "main", "images/macos/toolsets/toolset-11.json")
         $releases = Invoke-RestMethod $url -MaximumRetryCount $this.ApiRetryCount -RetryIntervalSec $this.ApiRetryIntervalSeconds
         $xamarin = $releases.xamarin
         $xamarinReleases = @{
