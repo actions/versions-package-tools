@@ -72,7 +72,9 @@ function Build-VersionsManifest {
         $versionHash = [PSCustomObject]@{}
         $versionHash | Add-Member -Name "version" -Value $versionKey -MemberType NoteProperty
         $versionHash | Add-Member -Name "stable" -Value $stable -MemberType NoteProperty
-        if ($ltsStatus) { $versionHash | Add-Member -Name "lts" -Value $ltsStatus -MemberType NoteProperty }
+        if ($ltsStatus) {
+            $versionHash | Add-Member -Name "lts" -Value $ltsStatus -MemberType NoteProperty
+        }
         $versionHash | Add-Member -Name "release_url" -Value $release.html_url -MemberType NoteProperty
         $versionHash | Add-Member -Name "files" -Value $releaseAssets -MemberType NoteProperty
         $versionsHash.Add($versionKey, $versionHash)
@@ -108,5 +110,4 @@ function Get-VersionLtsStatus {
     }
 
     return $null
-
 }
