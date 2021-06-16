@@ -110,7 +110,3 @@ function Get-VersionLtsStatus {
     return $null
 
 }
-
-# Invoke-RestMethod "https://raw.githubusercontent.com/nodejs/Release/main/schedule.json"
-# $arr.PSObject.Properties | Where-Object { $_.Value.codename } | ForEach-Object { @( @{ $_.Name = $_.Value.codename }) }
-# (Invoke-RestMethod 'https://raw.githubusercontent.com/nodejs/Release/main/schedule.json').PSObject.Properties | Where-Object { $_.Value.codename } | ForEach-Object { @{ Name = $_.Name.TrimStart('v'); Value = $_.Value.codename } }
