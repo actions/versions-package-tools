@@ -29,7 +29,7 @@ if ($ToolName -eq "Xamarin") {
 if ($VersionsToBuild) {
     $availableVersions = $VersionsToBuild -join $joinChars
     Write-Host "The following versions are available to build:`n${availableVersions}"
-    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]${availableVersions}"
+    Write-Host "::set-output name=version_number::${availableVersions}"
 } else {
     Write-Host "There aren't versions to build"
 }
