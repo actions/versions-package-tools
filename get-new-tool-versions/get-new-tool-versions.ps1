@@ -29,7 +29,7 @@ if ($ToolName -eq "Xamarin") {
 if ($VersionsToBuild) {
     $availableVersions = $VersionsToBuild -join $joinChars
     Write-Host "The following versions are available to build:`n${availableVersions}"
-    Write-Host "::set-output name=version_number::${availableVersions}"
+    Write-Host "::set-output name=version_number::1.16.5, 1.15.13"
 } else {
     Write-Host "There aren't versions to build"
 }
