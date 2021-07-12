@@ -24,13 +24,12 @@ if ($ToolName -eq "Xamarin") {
     $joinChars = "\n\t"
 } else {
     $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
-    $VersionsToBuild = "1"
 }
 
 if ($VersionsToBuild) {
     $availableVersions = $VersionsToBuild -join $joinChars
     Write-Host "The following versions are available to build:`n${availableVersions}"
-    Write-Host "::set-output name=version_number::1.16.5, 1.15.13"
+    Write-Host "::set-output name=version_number::${availableVersions}"
 } else {
     Write-Host "There aren't versions to build"
 }
