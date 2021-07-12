@@ -24,6 +24,7 @@ if ($ToolName -eq "Xamarin") {
     $joinChars = "\n\t"
 } else {
     $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -notcontains $_ }
+    $VersionsToBuild = "1"
 }
 
 if ($VersionsToBuild) {
