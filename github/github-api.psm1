@@ -124,6 +124,11 @@ class GitHubApi
         }
     }
 
+    [void] CancelWorkflow([string]$WorkflowId) {
+        $url = "actions/runs/$WorkflowId/cancel"
+        $this.InvokeRestMethod($url, 'POST', $null, $null)
+    }
+
     [object] hidden InvokeRestMethod(
         [string] $Url,
         [string] $Method,
