@@ -9,7 +9,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    
     - name: Validate Go manifest
       shell: pwsh
       run: .\packages-generation\manifest-validator.ps1 -ManifestUrl https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json
+    
+    - name: Validate Node manifest
+      shell: pwsh
+      run: .\packages-generation\manifest-validator.ps1 -ManifestUrl https://raw.githubusercontent.com/actions/node-versions/main/versions-manifest.json
 
