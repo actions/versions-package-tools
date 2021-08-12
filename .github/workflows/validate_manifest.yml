@@ -1,1 +1,15 @@
+name: Validate manifest
+
+on:
+  workflow_dispatch
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Validate Go manifest
+      shell: pwsh
+      run: .\packages-generation\manifest-validator.ps1 -ManifestUrl https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json
 
