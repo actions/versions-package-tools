@@ -23,29 +23,30 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolName,
 
-    # [Parameter(Mandatory)]
-    # [ValidateNotNullOrEmpty()]
-    # [System.String]$ToolVersion,
-
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
-    [System.String]$Message,
+    [System.String]$ToolVersion,
 
     [System.String]$PipelineUrl,
-    [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+    [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
+    [System.String]$Text
 )
 
 # Import helpers module
 Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
-if ($toolName -eq "Xamarin") {
-    $text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
+if ([string]::IsNullOrWhiteSpace($Text)) {
+    if ($toolName -eq "Xamarin") {
+        $text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
+    } else {
+        $text = "The following versions of '$toolName' are available to upload: $toolVersion"
+    }
+    if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
+        $text += "\nLink to the pipeline: $pipelineUrl"
+    }
 } else {
-    $text = "The following versions of '$toolName' are available to upload: $toolVersion"
-}
-if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
-    $text += "\nLink to the pipeline: $pipelineUrl"
+    $text = $Text
 }
 $jsonBodyMessage = @"
 {
@@ -54,7 +55,7 @@ $jsonBodyMessage = @"
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "$Message"
+                "text": "$text"
             },
             "accessory": {
                 "type": "image",
