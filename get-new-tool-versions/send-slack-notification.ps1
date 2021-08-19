@@ -23,9 +23,9 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolName,
 
-    [Parameter(Mandatory)]
-    [ValidateNotNullOrEmpty()]
-    [System.String]$ToolVersion,
+    # [Parameter(Mandatory)]
+    # [ValidateNotNullOrEmpty()]
+    # [System.String]$ToolVersion,
 
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
