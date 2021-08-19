@@ -27,6 +27,10 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolVersion,
 
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [System.String]$Message,
+
     [System.String]$PipelineUrl,
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
 )
@@ -50,7 +54,7 @@ $jsonBodyMessage = @"
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "$text"
+                "text": "$Message"
             },
             "accessory": {
                 "type": "image",
