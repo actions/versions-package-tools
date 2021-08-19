@@ -35,15 +35,13 @@ Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 # Create JSON body
 if ([string]::IsNullOrWhiteSpace($Text)) {
     if ($toolName -eq "Xamarin") {
-        $text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
+        $Text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
     } else {
-        $text = "The following versions of '$toolName' are available to upload: $toolVersion"
+        $Text = "The following versions of '$toolName' are available to upload: $toolVersion"
     }
     if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
-        $text += "\nLink to the pipeline: $pipelineUrl"
+        $Text += "\nLink to the pipeline: $pipelineUrl"
     }
-} else {
-    $text = $Text
 }
 $jsonBodyMessage = @"
 {
@@ -52,7 +50,7 @@ $jsonBodyMessage = @"
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "$text"
+                "text": "$Text"
             },
             "accessory": {
                 "type": "image",
