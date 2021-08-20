@@ -2,7 +2,7 @@ using module "./base-parser.psm1"
 
 class NodeVersionsParser: BaseVersionsParser {
     [SemVer[]] GetUploadedVersions() {
-        $url = $this.BuildGitHubFileUrl("actions", "node-versions", "main", "versions-manifest.json")
+        $url = $this.BuildGitHubFileUrl("nikita-bykov", "node-versions", "move-get-node-version-test", "versions-manifest.json")
         $releases = Invoke-RestMethod $url -MaximumRetryCount $this.ApiRetryCount -RetryIntervalSec $this.ApiRetryIntervalSeconds
         return $releases.version
     }
