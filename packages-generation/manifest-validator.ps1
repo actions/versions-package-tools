@@ -17,7 +17,7 @@ function Publish-Error {
     )
     
     echo "::error ::$ErrorDescription" 
-    if(-not [string]::IsNullOrEmpty($Exception))
+    if (-not [string]::IsNullOrEmpty($Exception))
     {
         Write-Output "Exception: $Exception"
     }
@@ -67,7 +67,6 @@ $manifestJson | ForEach-Object {
     }
 }
 
-if($Global:validationFailed)
-{
+if ($Global:validationFailed) {
     exit 1
 }
