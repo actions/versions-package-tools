@@ -40,7 +40,7 @@ function Test-DownloadUrl {
 
 Write-Host "Downloading manifest json from '$ManifestUrl'..."
 try {
-    $manifestResponse = Invoke-WebRequest -Method Get -Uri $ManifestUrl -Headers $webRequestHeaders
+    $manifestResponse = Invoke-WebRequest -Method Get -Uri $ManifestUrl -Headers $webRequestHeaders -MaximumRetryCount 5 -RetryIntervalSec 10
 } catch {
     Publish-Error "Unable to download manifest json from '$ManifestUrl'" $_
     exit 1
