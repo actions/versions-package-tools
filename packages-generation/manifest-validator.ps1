@@ -4,11 +4,6 @@ param (
 )
 
 $Global:validationFailed = $false
-$authorizationHeaderValue = "Basic $AccessToken"
-$webRequestHeaders = @{}
-if ($AccessToken) {
-    $webRequestHeaders.Add("Authorization", $authorizationHeaderValue)
-}
 
 function Publish-Error {
     param(
@@ -16,7 +11,7 @@ function Publish-Error {
         [object] $Exception
     )
     
-    echo "::error ::$ErrorDescription" 
+    Write-Output "::error ::$ErrorDescription" 
     if (-not [string]::IsNullOrEmpty($Exception))
     {
         Write-Output "Exception: $Exception"
@@ -26,6 +21,7 @@ function Publish-Error {
 
 function Test-DownloadUrl {
     param([string] $DownloadUrl)
+    $authorizationHeaderValue = "Basic $AccessToken"
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
     if ($AccessToken) {
         $request.Headers.Add("Authorization", $authorizationHeaderValue)
