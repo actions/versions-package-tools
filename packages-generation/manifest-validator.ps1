@@ -20,10 +20,10 @@ function Publish-Error {
 }
 
 function Test-DownloadUrl {
-    param([string] $DownloadUrl)
-    $authorizationHeaderValue = "Basic $AccessToken"
+    param([string] $DownloadUrl)    
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
     if ($AccessToken) {
+        $authorizationHeaderValue = "Basic $AccessToken"
         $request.Headers.Add("Authorization", $authorizationHeaderValue)
     }
     try {
@@ -41,7 +41,7 @@ if (-not (Test-Path $ManifestPath)) {
 
 Write-Host "Parsing manifest json content from '$ManifestPath'..."
 try {
-    $manifestJson = $( Get-Content $ManifestPath ) | ConvertFrom-Json
+    $manifestJson = Get-Content $ManifestPath | ConvertFrom-Json
 } catch {
     Publish-Error "Unable to parse manifest json content '$ManifestPath'" $_
     exit 1
