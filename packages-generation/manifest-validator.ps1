@@ -1,14 +1,9 @@
 param (
-    [Parameter(Mandatory)][string] $ManifestUrl,
+    [Parameter(Mandatory)][string] $ManifestPath,
     [string] $AccessToken
 )
 
 $Global:validationFailed = $false
-$authorizationHeaderValue = "Basic $AccessToken"
-$webRequestHeaders = @{}
-if ($AccessToken) {
-    $webRequestHeaders.Add("Authorization", $authorizationHeaderValue)
-}
 
 function Publish-Error {
     param(
@@ -16,7 +11,7 @@ function Publish-Error {
         [object] $Exception
     )
     
-    echo "::error ::$ErrorDescription" 
+    Write-Output "::error ::$ErrorDescription" 
     if (-not [string]::IsNullOrEmpty($Exception))
     {
         Write-Output "Exception: $Exception"
@@ -25,9 +20,10 @@ function Publish-Error {
 }
 
 function Test-DownloadUrl {
-    param([string] $DownloadUrl)
+    param([string] $DownloadUrl)    
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
     if ($AccessToken) {
+        $authorizationHeaderValue = "Basic $AccessToken"
         $request.Headers.Add("Authorization", $authorizationHeaderValue)
     }
     try {
@@ -38,19 +34,16 @@ function Test-DownloadUrl {
     }
 }
 
-Write-Host "Downloading manifest json from '$ManifestUrl'..."
-try {
-    $manifestResponse = Invoke-WebRequest -Method Get -Uri $ManifestUrl -Headers $webRequestHeaders -MaximumRetryCount 5 -RetryIntervalSec 10
-} catch {
-    Publish-Error "Unable to download manifest json from '$ManifestUrl'" $_
+if (-not (Test-Path $ManifestPath)) {
+    Publish-Error "Unable to find manifest json file at '$ManifestPath'"
     exit 1
 }
 
-Write-Host "Parsing manifest json content from '$ManifestUrl'..."
+Write-Host "Parsing manifest json content from '$ManifestPath'..."
 try {
-    $manifestJson = $manifestResponse.Content | ConvertFrom-Json
+    $manifestJson = Get-Content $ManifestPath | ConvertFrom-Json
 } catch {
-    Publish-Error "Unable to parse manifest json content '$ManifestUrl'" $_
+    Publish-Error "Unable to parse manifest json content '$ManifestPath'" $_
     exit 1
 }
 
