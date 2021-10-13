@@ -1,6 +1,5 @@
 param (
-    [Parameter(Mandatory)][string] $ManifestPath,
-    [string] $AccessToken
+    [Parameter(Mandatory)][string] $ManifestPath
 )
 
 $Global:validationFailed = $false
@@ -10,7 +9,7 @@ function Publish-Error {
         [string] $ErrorDescription,
         [object] $Exception
     )
-    
+
     Write-Output "::error ::$ErrorDescription" 
     if (-not [string]::IsNullOrEmpty($Exception))
     {
@@ -20,12 +19,11 @@ function Publish-Error {
 }
 
 function Test-DownloadUrl {
-    param([string] $DownloadUrl)    
+    param(
+        [string] $DownloadUrl
+    )
+
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
-    if ($AccessToken) {
-        $authorizationHeaderValue = "Basic $AccessToken"
-        $request.Headers.Add("Authorization", $authorizationHeaderValue)
-    }
     try {
         $response = $request.GetResponse()
         return ([int]$response.StatusCode -eq 200)
