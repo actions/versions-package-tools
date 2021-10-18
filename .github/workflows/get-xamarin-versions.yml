@@ -1,69 +1,87 @@
-name: Get Xamarin versions
+name: Get tools new versions
 on:
   schedule:
     - cron: '0 8 * * THU'
   workflow_dispatch:
 
-env:
-  TOOL_NAME: "Xamarin"
 defaults:
   run:
     shell: pwsh
 
 jobs:
-  find_new_versions:
-    name: Find new versions
+  find-new-xamarin-versions:
+    name: Searching for new Xamarin versions
     runs-on: ubuntu-latest
     outputs:
-      versions_output: ${{ steps.Get_new_versions.outputs.TOOL_VERSIONS }}
+      versions-output: ${{ steps.get-new-xamarin-versions.outputs.versions-output }}
     steps:
       - uses: actions/checkout@v2
-
-      - id: Get_new_versions
-        name: Get new versions
-        run: ./get-new-tool-versions/get-new-tool-versions.ps1 -ToolName ${{ env.TOOL_NAME }}
-
-  check_new_versions:
-    name: Check new versions
+      - id: get-new-xamarin-versions
+        uses: ./.github/actions/find-new-tool-versions
+        with:
+          tool-name: 'Xamarin'
+  
+  check-new-xamarin-versions:
+    name: Verifying new Xamarin versions exist
     runs-on: ubuntu-latest
-    needs: find_new_versions
-    env:
-      TOOL_VERSIONS: ${{needs.find_new_versions.outputs.versions_output}}
+    needs: find-new-xamarin-versions
     steps:
       - uses: actions/checkout@v2
-
       - name: Check Versions
-        if: success() && env.TOOL_VERSIONS == ''
-        run: |
-          Write-Host "No new versions were found"
-          Import-Module "./github/github-api.psm1"
-          $gitHubApi = Get-GitHubApi -RepositoryFullName "$env:GITHUB_REPOSITORY" `
-                                     -AccessToken "${{ secrets.GITHUB_TOKEN }}"
-
-          $gitHubApi.CancelWorkflow("$env:GITHUB_RUN_ID")
-          Start-Sleep -Seconds 60
-
+        if: needs.find-new-xamarin-versions.outputs.versions-output == ''
+        run: Write-Host "No new versions found"
+      - uses: ./.github/actions/send-slack-notification
+        if: needs.find-new-xamarin-versions.outputs.versions-output != ''
+        with:
+          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          tool-name: 'Xamarin'
+          tool-version: ${{ needs.find-new-xamarin-versions.outputs.versions-output }}
+          image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
       - name: Send Slack notification
-        run: |
-          $message = "The following versions of '${{ env.TOOL_NAME }}' are available, consider adding them to toolset: ${{ env.TOOL_VERSIONS }}"
-          ./get-new-tool-versions/send-slack-notification.ps1 -Url "${{ secrets.SLACK_CHANNEL_URL }}" `
-                                                                      -ToolName "${{ env.TOOL_NAME }}" `
-                                                                      -ImageUrl "https://avatars.githubusercontent.com/u/790012?s=200&v=4" `
-                                                                      -Text "$message"
-
+        run: Write-Host "New versions found '${{ needs.find-new-xamarin-versions.outputs.versions-output }}'"
+  
+  find-new-python-versions:
+    name: Searching for new Python versions
+    runs-on: ubuntu-latest
+    outputs:
+      versions-output: ${{ steps.get-new-python-versions.outputs.versions-output }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: get-new-python-versions
+        uses: ./.github/actions/find-new-tool-versions
+        with:
+          tool-name: 'Python'
+  
+  check-new-python-versions:
+    name: Verifying new Python versions exist
+    runs-on: ubuntu-latest
+    needs: find-new-python-versions
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Versions
+        if: needs.find-new-python-versions.outputs.versions-output == ''
+        run: Write-Host "No new versions found"
+      - uses: ./.github/actions/send-slack-notification
+        if: needs.find-new-python-versions.outputs.versions-output != ''
+        with:
+          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          tool-name: 'Python'
+          tool-version: ${{ needs.find-new-python-versions.outputs.versions-output }}
+          image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
+      - name: Send Slack notification
+        run: Write-Host "New versions found '${{ needs.find-new-python-versions.outputs.versions-output }}'"
+  
   check_build:
     name: Check build for failures 
     runs-on: ubuntu-latest
-    needs: [find_new_versions, check_new_versions]
+    needs: [check-new-xamarin-versions, check-new-python-versions]
     if: failure()
     steps:
       - uses: actions/checkout@v2
-
-      - name: Send Slack notification if build fails
-        run: |
-          $pipelineUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
-          $message = "The build of the '${{ env.TOOL_NAME }}' detection pipeline failed :progress-error:\nLink to the pipeline: $pipelineUrl"
-          ./get-new-tool-versions/send-slack-notification.ps1 -Url "${{ secrets.SLACK_CHANNEL_URL }}" `
-                                                                      -ToolName "${{ env.TOOL_NAME }}" `
-                                                                      -Text "$message" `
-                                                                      -ImageUrl "https://avatars.githubusercontent.com/u/790012?s=200&v=4"
+      - uses: ./.github/actions/send-slack-notification
+        with:
+          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          tool-name: 'Xamarin or Python'
+          pipeline-url: '${{ $env:GITHUB_SERVER_URL }}/${{ $env:GITHUB_REPOSITORY }}/actions/runs/${{ $env:GITHUB_RUN_ID }}'
+          image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
+          text: "The build of the Xamarin or Python detection pipeline failed :progress-error:"

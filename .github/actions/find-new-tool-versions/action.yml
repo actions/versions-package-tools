@@ -1,0 +1,19 @@
+name: 'Find new versions'
+description: 'Find new versions of a tool'
+inputs:
+  tool-name:
+    required: true
+    description: 'Name of a tool to search versions for. Like Xamarin or Python'
+    default: 'Xamarin'
+outputs:
+  versions-output:
+    description: "New versions found"
+    value: ${{ steps.get-new-versions.outputs.versions-output }}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+    - id: get-new-versions
+      name: Get new versions
+      shell: pwsh
+      run: echo "::set-output name=versions-output::$(./get-new-tool-versions/verify-new-tool-version-added-to-image.ps1 -ToolName ${{ inputs.tool-name }})"
