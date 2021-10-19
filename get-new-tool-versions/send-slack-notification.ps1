@@ -37,7 +37,7 @@ Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 # Create JSON body
 if ([string]::IsNullOrWhiteSpace($Text)) {
     if ($toolName -in ("Xamarin", "Python")) {
-        $Text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
+        $Text = "The following versions of '$toolName' are available, consider adding them to toolset: $($toolVersion | Out-string)"
     } else {
         $Text = "The following versions of '$toolName' are available to upload: $toolVersion"
     }
