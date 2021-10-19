@@ -25,7 +25,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolName,
 
-    [System.String]$ToolVersion,
+    [System.Array]$ToolVersion,
     [System.String]$PipelineUrl,
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
     [System.String]$Text
