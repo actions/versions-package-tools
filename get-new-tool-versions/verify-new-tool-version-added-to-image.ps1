@@ -30,5 +30,8 @@ if ($ToolName -eq "Xamarin") {
     $versionsToAdd = $filteredReleases | Where-Object {$releasesOnImage[$_.name] -notcontains $_.version } | ForEach-Object {[string]::Empty} {
         '{0,-15} : {1}' -f $_.name, $_.version
     }
+    $joinChars = "\n\t"
 }
+$versionsToAdd = $versionsToAdd -join $joinChars
+
 return $versionsToAdd
