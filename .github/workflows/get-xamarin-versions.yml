@@ -67,7 +67,7 @@ jobs:
           url: ${{ secrets.SLACK_CHANNEL_URL }}
           tool-name: 'Python'
           tool-version: ${{ needs.find-new-python-versions.outputs.versions-output }}
-          image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
+          image-url: 'https://www.python.org/static/community_logos/python-powered-h-100x130.png'
       - name: Send Slack notification
         run: Write-Host "New versions found '${{ needs.find-new-python-versions.outputs.versions-output }}'"
   
