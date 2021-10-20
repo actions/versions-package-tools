@@ -12,7 +12,7 @@ param (
 
 if ($ToolName -eq "Python") {
     $builtStableMinorVersionsList = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json") | Where-Object {$_.stable -eq "True"} | Select-Object -First 10).version | ForEach-Object {$_.split(".")[0,1] -join(".")} | Select-Object -Unique
-    $existingMinorVesionsList = ((Invoke-RestMethod "https://raw.githubusercontent.com/shilovmaksim/virtual-environments/main/images/win/toolsets/toolset-2019.json").toolcache | Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions | ForEach-Object {$_.split(".")[0,1] -join(".")} | Select-Object -Unique
+    $existingMinorVesionsList = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json").toolcache | Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions | ForEach-Object {$_.split(".")[0,1] -join(".")} | Select-Object -Unique
     $versionsToAdd = $builtStableMinorVersionsList | Where-Object {$_ -notin $existingMinorVesionsList}
 }
 
@@ -20,7 +20,7 @@ if ($ToolName -eq "Xamarin") {
     $xamarinReleases = (Invoke-RestMethod "http://aka.ms/manifest/stable").items
     $xamarinProducts = @('Mono Framework', 'Xamarin.Android', 'Xamarin.iOS', 'Xamarin.Mac')
     $filteredReleases = $xamarinReleases | Where-Object {$_.name -in $xamarinProducts} | Sort-Object name | Select-Object name, version
-    $uploadedReleases = (Invoke-RestMethod "https://raw.githubusercontent.com/shilovmaksim/virtual-environments/main/images/macos/toolsets/toolset-11.json").xamarin
+    $uploadedReleases = (Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-11.json").xamarin
     $releasesOnImage = @{
         'Mono Framework' = $uploadedReleases.'mono-versions'
         'Xamarin.Android' = $uploadedReleases.'android-versions'
