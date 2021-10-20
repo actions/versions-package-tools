@@ -36,6 +36,7 @@ jobs:
           tool-name: 'Xamarin'
           tool-version: ${{ needs.find-new-xamarin-versions.outputs.versions-output }}
           image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
+          add-to-toolset-flag: '-AddToToolsetFlag'
   
   find-new-python-versions:
     name: Searching for new Python versions
@@ -64,6 +65,7 @@ jobs:
           tool-name: 'Python'
           tool-version: ${{ needs.find-new-python-versions.outputs.versions-output }}
           image-url: 'https://www.python.org/static/community_logos/python-powered-h-100x130.png'
+          add-to-toolset-flag: '-AddToToolsetFlag'
 
   check_build:
     name: Check build for failures 

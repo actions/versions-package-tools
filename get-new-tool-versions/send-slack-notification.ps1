@@ -25,6 +25,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolName,
 
+    [Switch]$AddToToolsetFlag,
     [System.String]$ToolVersion,
     [System.String]$PipelineUrl,
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
@@ -36,7 +37,7 @@ Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
 if ([string]::IsNullOrWhiteSpace($Text)) {
-    if ($toolName -in ("Xamarin", "Python")) {
+    if ($AddToToolsetFlag) {
         $Text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
     } else {
         $Text = "The following versions of '$toolName' are available to upload: $toolVersion"

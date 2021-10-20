@@ -8,6 +8,9 @@ inputs:
     required: true
     description: 'Name of a tool to send notification for. Like Xamarin or Python'
     default: 'Xamarin'
+  add-to-toolset-flag:
+    required: false
+    description: 'Flag to use notification for adding new versions to toolset'
   tool-version:
     required: false
     description: 'New versions of a tool'
@@ -32,4 +35,5 @@ runs:
                                                                       -ToolVersion "${{ inputs.tool-version }}" `
                                                                       -PipelineUrl "${{ inputs.pipeline-url }}" `
                                                                       -ImageUrl "${{ inputs.image-url }}" `
-                                                                      -Text "${{ inputs.text }}"
+                                                                      -Text "${{ inputs.text }}" `
+                                                                      "${{ inputs.add-to-toolset-flag }}"
