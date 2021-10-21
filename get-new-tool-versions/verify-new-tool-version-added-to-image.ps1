@@ -14,12 +14,12 @@ if ($ToolName -eq "Python") {
     $pythonVesionsManifestUrl = "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json"
     $builtStableMinorVersions = (Invoke-RestMethod $pythonVesionsManifestUrl) |
         Where-Object stable -eq $true |
-        ForEach-Object {$_.version.split(".")[0,1] -join(".")} |
+        ForEach-Object {$_.version.split(".")[0,1] -join"."} |
         Select-Object -Unique
     $toolsetManifestUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json"
     $latestExistingMinorVesion = ((Invoke-RestMethod $toolsetManifestUrl).toolcache |
         Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions |
-        ForEach-Object {$_.split(".")[0,1] -join(".")} |
+        ForEach-Object {$_.split(".")[0,1] -join"."} |
         Select-Object -Last 1
     $versionsToAdd = $builtStableMinorVersions | Where-Object {[version]$_ -gt [version]$latestExistingMinorVesion}
 }
