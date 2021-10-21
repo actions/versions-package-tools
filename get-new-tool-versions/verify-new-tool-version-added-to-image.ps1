@@ -11,9 +11,15 @@ param (
 )
 
 if ($ToolName -eq "Python") {
-    $builtStableMinorVersionsList = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json") | Where-Object {$_.stable -eq "True"} | Select-Object -First 10).version | ForEach-Object {$_.split(".")[0,1] -join(".")} | Select-Object -Unique
-    $existingMinorVesionsList = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json").toolcache | Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions | ForEach-Object {$_.split(".")[0,1] -join(".")} | Select-Object -Unique
-    $versionsToAdd = $builtStableMinorVersionsList | Where-Object {$_ -notin $existingMinorVesionsList}
+    $builtStableMinorVersions = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json") |
+    Where-Object {$_.stable -eq $true}).version |
+    ForEach-Object {$_.split(".")[0,1] -join(".")} |
+    Select-Object -Unique
+    $latestExistingMinorVesion = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json").toolcache |
+    Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions |
+    ForEach-Object {$_.split(".")[0,1] -join(".")} |
+    Select-Object -Last 1
+    $versionsToAdd = $builtStableMinorVersions | Where-Object {[version]$_ -gt [version]$latestExistingMinorVesion}
 }
 
 if ($ToolName -eq "Xamarin") {
