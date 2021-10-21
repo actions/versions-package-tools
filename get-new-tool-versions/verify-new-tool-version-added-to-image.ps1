@@ -11,11 +11,13 @@ param (
 )
 
 if ($ToolName -eq "Python") {
-    $builtStableMinorVersions = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json") |
-        Where-Object {$_.stable -eq $true}).version |
-        ForEach-Object {$_.split(".")[0,1] -join(".")} |
+    $pythonVesionsManifestUrl = "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json"
+    $builtStableMinorVersions = (Invoke-RestMethod $pythonVesionsManifestUrl) |
+        Where-Object stable -eq $true |
+        ForEach-Object {$_.version.split(".")[0,1] -join(".")} |
         Select-Object -Unique
-    $latestExistingMinorVesion = ((Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json").toolcache |
+    $toolsetManifestUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json"
+    $latestExistingMinorVesion = ((Invoke-RestMethod $toolsetManifestUrl).toolcache |
         Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions |
         ForEach-Object {$_.split(".")[0,1] -join(".")} |
         Select-Object -Last 1
@@ -26,7 +28,8 @@ if ($ToolName -eq "Xamarin") {
     $xamarinReleases = (Invoke-RestMethod "http://aka.ms/manifest/stable").items
     $xamarinProducts = @('Mono Framework', 'Xamarin.Android', 'Xamarin.iOS', 'Xamarin.Mac')
     $filteredReleases = $xamarinReleases | Where-Object {$_.name -in $xamarinProducts} | Sort-Object name | Select-Object name, version
-    $uploadedReleases = (Invoke-RestMethod "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-11.json").xamarin
+    $toolsetManifestUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-11.json"
+    $uploadedReleases = (Invoke-RestMethod $toolsetManifestUrl).xamarin
     $releasesOnImage = @{
         'Mono Framework' = $uploadedReleases.'mono-versions'
         'Xamarin.Android' = $uploadedReleases.'android-versions'
