@@ -14,6 +14,8 @@ Optional parameter. The pipeline URL
 Optional parameter. The image URL
 .PARAMETER Text
 Optional parameter. The message to post
+.PARAMETER AddToToolsetFlag
+Optional parameter. Flag to alternate message text for adding new version of a tool to toolset notification
 #>
 
 param(
@@ -25,11 +27,11 @@ param(
     [ValidateNotNullOrEmpty()]
     [System.String]$ToolName,
 
-    [Switch]$AddToToolsetFlag,
     [System.String]$ToolVersion,
     [System.String]$PipelineUrl,
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
-    [System.String]$Text
+    [System.String]$Text,
+    [Switch]$AddToToolsetFlag
 )
 
 # Import helpers module
@@ -42,10 +44,11 @@ if ([string]::IsNullOrWhiteSpace($Text)) {
     } else {
         $Text = "The following versions of '$toolName' are available to upload: $toolVersion"
     }
-    if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
-        $Text += "\nLink to the pipeline: $pipelineUrl"
-    }
 }
+if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
+    $Text += "\nLink to the pipeline: $pipelineUrl"
+}
+
 $jsonBodyMessage = @"
 {
     "blocks": [

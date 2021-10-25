@@ -77,7 +77,6 @@ jobs:
       - uses: ./.github/actions/send-slack-notification
         with:
           url: ${{ secrets.SLACK_CHANNEL_URL }}
-          tool-name: 'Xamarin or Python'
-          pipeline-url: '${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}'
-          image-url: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
-          text: "The build of the Xamarin or Python detection pipeline failed :progress-error:"
+          tool-name: 'Python or Xamarin'
+          pipeline-url: '$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID'
+          text: "The build of the Xamarin or Python detection pipeline has failed stages:"
