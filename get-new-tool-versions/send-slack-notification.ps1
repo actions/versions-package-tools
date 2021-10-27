@@ -14,6 +14,8 @@ Optional parameter. The pipeline URL
 Optional parameter. The image URL
 .PARAMETER Text
 Optional parameter. The message to post
+.PARAMETER AddToToolsetFlag
+Optional parameter. Flag to alternate message text for adding new version of a tool to toolset notification
 #>
 
 param(
@@ -28,7 +30,8 @@ param(
     [System.String]$ToolVersion,
     [System.String]$PipelineUrl,
     [System.String]$ImageUrl = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
-    [System.String]$Text
+    [System.String]$Text,
+    [Switch]$AddToToolsetFlag
 )
 
 # Import helpers module
@@ -36,15 +39,16 @@ Import-Module $PSScriptRoot/helpers.psm1 -DisableNameChecking
 
 # Create JSON body
 if ([string]::IsNullOrWhiteSpace($Text)) {
-    if ($toolName -eq "Xamarin") {
+    if ($AddToToolsetFlag) {
         $Text = "The following versions of '$toolName' are available, consider adding them to toolset: $toolVersion"
     } else {
         $Text = "The following versions of '$toolName' are available to upload: $toolVersion"
     }
-    if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
-        $Text += "\nLink to the pipeline: $pipelineUrl"
-    }
 }
+if (-not ([string]::IsNullOrWhiteSpace($PipelineUrl))) {
+    $Text += "\nLink to the pipeline: $pipelineUrl"
+}
+
 $jsonBodyMessage = @"
 {
     "blocks": [

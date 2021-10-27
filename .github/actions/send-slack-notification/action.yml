@@ -1,0 +1,39 @@
+name: 'Send Slack notification'
+description: 'SendSlack notification about new versions of a tool'
+inputs:
+  url:
+    required: true
+    description: 'Slack channel url'
+  tool-name:
+    required: true
+    description: 'Name of a tool to send notification for. Like Xamarin or Python'
+    default: 'Xamarin'
+  tool-version:
+    required: false
+    description: 'New versions of a tool'
+  pipeline-url:
+    required: false
+    description: 'Url of a pipeline'
+  image-url:
+    required: false
+    description: 'Image url for message'
+    default: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+  text:
+    required: false
+    description: 'Message text'
+  add-to-toolset-flag:
+    required: false
+    description: 'Flag to use notification for adding new versions to toolset'
+runs:
+  using: "composite"
+  steps:
+    - id: send-slack-notification
+      name: Send Slack notification
+      shell: pwsh
+      run: ./get-new-tool-versions/send-slack-notification.ps1 -Url "${{ inputs.url }}" `
+                                                                      -ToolName "${{ inputs.tool-name }}" `
+                                                                      -ToolVersion "${{ inputs.tool-version }}" `
+                                                                      -PipelineUrl "${{ inputs.pipeline-url }}" `
+                                                                      -ImageUrl "${{ inputs.image-url }}" `
+                                                                      -Text "${{ inputs.text }}" `
+                                                                      ${{ inputs.add-to-toolset-flag }}
