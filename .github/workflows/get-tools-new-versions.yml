@@ -46,9 +46,18 @@ jobs:
     if: failure()
     steps:
       - uses: actions/checkout@v2
+      - id: get-failed-jobs
+        name: Get failed jobs
+        run: |
+          $jobs_url = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID/jobs"
+          $failedJobs = (Invoke-RestMethod -Uri $jobs_url).jobs |
+            Where-Object conclusion -eq "failure" |
+            ForEach-Object {$_.name.split(",")[0].split("(")[-1] + ": $($_.html_url)"}
+          echo "::set-output name=failed-jobs::$failedJobs"
       - uses: ./.github/actions/send-slack-notification
+        name: Send Slack notification about failure
         with:
           url: ${{ secrets.SLACK_CHANNEL_URL }}
-          tool-name: 'Python or Xamarin'
+          tool-name: 'Tool name'
           pipeline-url: '$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID'
-          text: "The build of the Xamarin or Python detection pipeline has failed stages:"
+          text: "Detection pipeline for the new versions of a tools that not added to the toolset has failed jobs:/n/t${{ steps.get-failed-jobs.outputs.failed-jobs }}"
