@@ -60,4 +60,4 @@ jobs:
           url: ${{ secrets.SLACK_CHANNEL_URL }}
           tool-name: 'Tool name'
           pipeline-url: '$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID'
-          text: "Detection pipeline for the new versions of a tools that not added to the toolset has failed jobs:/n/t${{ steps.get-failed-jobs.outputs.failed-jobs }}"
+          text: "Missing toolset tool versions checker pipeline has failed jobs:/n/t${{ steps.get-failed-jobs.outputs.failed-jobs }}"
