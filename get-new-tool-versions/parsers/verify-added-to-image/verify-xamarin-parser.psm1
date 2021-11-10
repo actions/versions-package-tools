@@ -12,7 +12,7 @@ function Search-XamarinVersionsNotOnImage {
     foreach ($FilterProduct in $FilterProducts) {
         $releasesOnImage += @{$FilterProduct.name = $uploadedReleases.($FilterProduct.property)}
     }
-    $versionsToAdd = $filteredReleases | Where-Object {$releasesOnImage.($_.name) -notcontains $_.version } | ForEach-Object {[string]::Empty} {
+    $versionsToAdd = $filteredReleases | Where-Object {$releasesOnImage.($_.name) -notcontains $_.version} | ForEach-Object {[string]::Empty} {
         '{0,-15} : {1}' -f $_.name, $_.version
     }
     return $versionsToAdd
