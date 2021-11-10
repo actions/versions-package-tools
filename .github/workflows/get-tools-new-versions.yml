@@ -11,6 +11,7 @@ defaults:
 jobs:
   find-new-tool-versions:
     strategy:
+      fail-fast: false
       matrix:
         tool:
           - name: 'Xamarin'
@@ -52,7 +53,7 @@ jobs:
           $jobs_url = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID/jobs"
           $failedJobs = (Invoke-RestMethod -Uri $jobs_url).jobs |
             Where-Object conclusion -eq "failure" |
-            ForEach-Object {$_.name.split(" ")[-1] + ": $($_.html_url)"}
+            ForEach-Object {"\n\t" + $_.name.split(" ")[-1] + ": $($_.html_url)"}
           echo "::set-output name=failed-jobs::$failedJobs"
       - uses: ./.github/actions/send-slack-notification
         name: Send Slack notification about failure
