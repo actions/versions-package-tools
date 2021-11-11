@@ -3,46 +3,39 @@
 Check and return list of new available tool versions that not added to toolsets yet
 
 .PARAMETER ToolName
-Required parameter. The name of tool for which parser is available (Python, Xamarin)
+Required parameter. The name of tool for which parser is available (Python, Xamarin, PyPy)
 #>
 
 param (
     [Parameter(Mandatory)]
-    [ValidateSet("Python", "Xamarin")]
+    [ValidateSet("Python", "Xamarin", "PyPy")]
     [string]$ToolName
 )
 
+Get-ChildItem "$PSScriptRoot/parsers/verify-added-to-image/" | ForEach-Object {Import-Module $_.FullName}
+
 if ($ToolName -eq "Python") {
     $pythonVesionsManifestUrl = "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json"
-    $builtStableMinorVersions = (Invoke-RestMethod $pythonVesionsManifestUrl) |
-        Where-Object stable -eq $true |
-        ForEach-Object {$_.version.split(".")[0,1] -join"."} |
-        Select-Object -Unique
-    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2019.json"
-    $latestExistingMinorVesion = ((Invoke-RestMethod $toolsetUrl).toolcache |
-        Where-Object {$_.name -eq "Python" -and $_.arch -eq "x64"}).versions |
-        ForEach-Object {$_.split(".")[0,1] -join"."} |
-        Select-Object -Last 1
-    $versionsToAdd = $builtStableMinorVersions | Where-Object {[version]$_ -gt [version]$latestExistingMinorVesion}
+    $versionsToAdd = Search-PythonVersionsNotOnImage -ToolName $ToolName -ReleasesUrl $pythonVesionsManifestUrl -FilterParameter "version" -FilterArch "x64"
+}
+
+if ($ToolName -eq "PyPy") {
+    $pypyReleases = "https://downloads.python.org/pypy/versions.json"
+    $versionsToAdd = Search-PythonVersionsNotOnImage -ToolName $ToolName -ReleasesUrl $pypyReleases -FilterParameter "python_version" -FilterArch "x86"
 }
 
 if ($ToolName -eq "Xamarin") {
-    $xamarinReleases = (Invoke-RestMethod "http://aka.ms/manifest/stable").items
-    $xamarinProducts = @('Mono Framework', 'Xamarin.Android', 'Xamarin.iOS', 'Xamarin.Mac')
-    $filteredReleases = $xamarinReleases | Where-Object {$_.name -in $xamarinProducts} | Sort-Object name | Select-Object name, version
-    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-11.json"
-    $uploadedReleases = (Invoke-RestMethod $toolsetUrl).xamarin
-    $releasesOnImage = @{
-        'Mono Framework' = $uploadedReleases.'mono-versions'
-        'Xamarin.Android' = $uploadedReleases.'android-versions'
-        'Xamarin.iOS' = $uploadedReleases.'ios-versions'
-        'Xamarin.Mac' = $uploadedReleases.'mac-versions'
-    }
-    $versionsToAdd = $filteredReleases | Where-Object {$releasesOnImage[$_.name] -notcontains $_.version } | ForEach-Object {[string]::Empty} {
-        '{0,-15} : {1}' -f $_.name, $_.version
-    }
+    $xamarinReleases = "http://aka.ms/manifest/stable"
+    $xamarinProducts = @(
+        [PSCustomObject] @{name = 'Mono Framework'; property = 'mono-versions'}
+        [PSCustomObject] @{name = 'Xamarin.Android'; property = 'android-versions'}
+        [PSCustomObject] @{name = 'Xamarin.iOS'; property = 'ios-versions'}
+        [PSCustomObject] @{name = 'Xamarin.Mac'; property = 'mac-versions'}
+    )
+    $versionsToAdd = Search-XamarinVersionsNotOnImage -ReleasesUrl $xamarinReleases -FilterProducts $xamarinProducts
     $joinChars = "\n\t"
 }
+
 $versionsToAdd = $versionsToAdd -join $joinChars
 
 return $versionsToAdd
