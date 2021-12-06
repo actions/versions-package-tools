@@ -3,25 +3,22 @@
 Check and return list of new available tool versions that not added to toolsets yet
 
 .PARAMETER ToolName
-Required parameter. The name of tool for which parser is available (Python, Xamarin, PyPy)
+Required parameter. The name of tool for which parser is available (Python, Xamarin, PyPy, Node, Go)
 #>
 
 param (
     [Parameter(Mandatory)]
-    [ValidateSet("Python", "Xamarin", "PyPy")]
-    [string]$ToolName
+    [ValidateSet("Python", "Xamarin", "PyPy", "Node", "Go")]
+    [string] $ToolName,
+    [string] $ReleasesUrl,
+    [string] $FilterParameter,
+    [string] $FilterArch
 )
 
 Get-ChildItem "$PSScriptRoot/parsers/verify-added-to-image/" | ForEach-Object {Import-Module $_.FullName}
 
-if ($ToolName -eq "Python") {
-    $pythonVesionsManifestUrl = "https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json"
-    $versionsToAdd = Search-PythonVersionsNotOnImage -ToolName $ToolName -ReleasesUrl $pythonVesionsManifestUrl -FilterParameter "version" -FilterArch "x64"
-}
-
-if ($ToolName -eq "PyPy") {
-    $pypyReleases = "https://downloads.python.org/pypy/versions.json"
-    $versionsToAdd = Search-PythonVersionsNotOnImage -ToolName $ToolName -ReleasesUrl $pypyReleases -FilterParameter "python_version" -FilterArch "x86"
+if ($ToolName -in "Python", "PyPy", "Node", "Go") {
+    $versionsToAdd = Search-ToolsVersionsNotOnImage -ToolName $ToolName -ReleasesUrl $ReleasesUrl -FilterParameter $FilterParameter -FilterArch $FilterArch
 }
 
 if ($ToolName -eq "Xamarin") {
