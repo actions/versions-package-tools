@@ -14,7 +14,7 @@ function Search-ToolsVersionsNotOnImage {
         $stableReleaseVersions = $stableReleases | ForEach-Object {$_.$FilterParameter.split(".")[0,1] -join"."} |
             Select-Object -Unique
     }
-    $toolsetUrl = "https://raw.githubusercontent.com/shilovmaksim/virtual-environments/shilovmaksim/toolset-test/images/win/toolsets/toolset-2022.json"
+    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2022.json"
     $latestVersion = ((Invoke-RestMethod $toolsetUrl).toolcache |
         Where-Object {$_.name -eq $ToolName -and $_.arch -eq $FilterArch}).versions |
         Select-Object -Last 1
