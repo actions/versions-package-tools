@@ -1,4 +1,4 @@
-function Search-PythonVersionsNotOnImage {
+function Search-ToolsVersionsNotOnImage {
     param (
         [string]$ToolName,
         [string]$ReleasesUrl,
