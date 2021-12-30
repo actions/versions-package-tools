@@ -126,7 +126,7 @@ Describe "Build-VersionsManifest" {
             [PSCustomObject]@{ version = "3.8.3"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles }
         )
         [array]$actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
-        Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest 
+        Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
     }
 
     It "take latest published release for each version" {
@@ -160,5 +160,55 @@ Describe "Build-VersionsManifest" {
         )
         [array]$actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
         Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
+    }
+
+    It "set correct lts value for versions" {
+        $releases = @(
+            @{ name = "14.2.1"; draft = false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-14T09:54:06Z"; assets = $assets },
+            @{ name = "12.0.1"; draft = $false; prerelease = false; html_url = "fake_html_url"; published_at = "2020-05-06T11:45:36Z"; assets = $assets },
+            @{ name = "16.2.2"; draft = $false; prerelease = $false; html_url = "fake_html_url"; published_at = "2020-05-06T11:43:38Z"; assets = $assets }
+        )
+        $configuration = @{
+            regex = "python-\d+\.\d+\.\d+-(\w+)-([\w\.]+)?-?(x\d+)";
+            groups = [PSCustomObject]@{ platform = 1; platform_version = 2; arch = "x64"; }
+            lts_rule_expression = "@(@{ Name = '14'; Value = 'Fermium' }, @{ Name = '12'; Value = 'Erbium' })"
+        }
+        $expectedManifest = @(
+            [PSCustomObject]@{ version = "16.2.2"; stable = $true; release_url = "fake_html_url"; files = $expectedManifestFiles },
+            [PSCustomObject]@{ version = "14.2.1"; stable = $true; lts = "Fermium"; release_url = "fake_html_url"; files = $expectedManifestFiles },
+            [PSCustomObject]@{ version = "12.0.1"; stable = $true; lts = "Erbium"; release_url = "fake_html_url"; files = $expectedManifestFiles }
+        )
+        [array]$actualManifest = Build-VersionsManifest -Releases $releases -Configuration $configuration
+        Assert-Equivalent -Actual $actualManifest -Expected $expectedManifest
+    }
+}
+
+Describe "Get-VersionLtsStatus" {
+    $ltsRules = @(
+        @{ Name = "14"; Value = "Fermium" },
+        @{ Name = "12"; Value = "Erbium" },
+        @{ Name = "10"; Value = $true },
+        @{ Name = "8.3"; Value = "LTS 8.3" }
+    )
+
+    It "lts label is matched" {
+        Get-VersionLtsStatus -Version "14.2.2" -LtsRules $ltsRules | Should -Be "Fermium"
+        Get-VersionLtsStatus -Version "12.3.1" -LtsRules $ltsRules | Should -Be "Erbium"
+        Get-VersionLtsStatus -Version "10.8.1" -LtsRules $ltsRules | Should -Be $true
+        Get-VersionLtsStatus -Version "8.3.2" -LtsRules $ltsRules | Should -Be "LTS 8.3"
+        Get-VersionLtsStatus -Version "14" -LtsRules $ltsRules | Should -Be "Fermium"
+    }
+
+    It "lts label is not matched" {
+        Get-VersionLtsStatus -Version "9.1" -LtsRules $ltsRules | Should -Be $null
+        Get-VersionLtsStatus -Version "13.8" -LtsRules $ltsRules | Should -Be $null
+        Get-VersionLtsStatus -Version "5" -LtsRules $ltsRules | Should -Be $null
+        Get-VersionLtsStatus -Version "8.4" -LtsRules $ltsRules | Should -Be $null
+        Get-VersionLtsStatus -Version "142.5.1" -LtsRules $ltsRules | Should -Be $null
+    }
+
+    It "no rules" {
+        Get-VersionLtsStatus -Version "14.2.2" | Should -Be $null
+        Get-VersionLtsStatus -Version "12.3.1" -LtsRules $null | Should -Be $null
     }
 }

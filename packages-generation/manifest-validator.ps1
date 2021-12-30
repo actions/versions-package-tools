@@ -1,30 +1,29 @@
 param (
-    [Parameter(Mandatory)][string] $ManifestUrl,
-    [string] $AccessToken
+    [Parameter(Mandatory)][string] $ManifestPath
 )
 
-$authorizationHeaderValue = "Basic $AccessToken"
-$webRequestHeaders = @{}
-if ($AccessToken) {
-    $webRequestHeaders.Add("Authorization", $authorizationHeaderValue)
-}
+$Global:validationFailed = $false
 
 function Publish-Error {
     param(
         [string] $ErrorDescription,
         [object] $Exception
     )
-    Write-Host "##vso[task.logissue type=error]ERROR: $ErrorDescription."
-    Write-Host "##vso[task.logissue type=error]    $Exception"
-    Write-Host "##vso[task.complete result=Failed;]"
+
+    Write-Output "::error ::$ErrorDescription" 
+    if (-not [string]::IsNullOrEmpty($Exception))
+    {
+        Write-Output "Exception: $Exception"
+    }
+    $Global:validationFailed = $true
 }
 
 function Test-DownloadUrl {
-    param([string] $DownloadUrl)
+    param(
+        [string] $DownloadUrl
+    )
+
     $request = [System.Net.WebRequest]::Create($DownloadUrl)
-    if ($AccessToken) {
-        $request.Headers.Add("Authorization", $authorizationHeaderValue)
-    }
     try {
         $response = $request.GetResponse()
         return ([int]$response.StatusCode -eq 200)
@@ -33,19 +32,16 @@ function Test-DownloadUrl {
     }
 }
 
-Write-Host "Downloading manifest json from '$ManifestUrl'..."
-try {
-    $manifestResponse = Invoke-WebRequest -Method Get -Uri $ManifestUrl -Headers $webRequestHeaders
-} catch {
-    Publish-Error "Unable to download manifest json from '$ManifestUrl'" $_
+if (-not (Test-Path $ManifestPath)) {
+    Publish-Error "Unable to find manifest json file at '$ManifestPath'"
     exit 1
 }
 
-Write-Host "Parsing manifest json content from '$ManifestUrl'..."
+Write-Host "Parsing manifest json content from '$ManifestPath'..."
 try {
-    $manifestJson = $manifestResponse.Content | ConvertFrom-Json
+    $manifestJson = Get-Content $ManifestPath | ConvertFrom-Json
 } catch {
-    Publish-Error "Unable to parse manifest json content '$ManifestUrl'" $_
+    Publish-Error "Unable to parse manifest json content '$ManifestPath'" $_
     exit 1
 }
 
@@ -60,4 +56,8 @@ $manifestJson | ForEach-Object {
             Publish-Error "Url '$($_.download_url)' is invalid"
         }
     }
+}
+
+if ($Global:validationFailed) {
+    exit 1
 }
