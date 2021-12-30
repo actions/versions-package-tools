@@ -1,0 +1,89 @@
+name: Get tools new versions
+on:
+  schedule:
+    - cron: '0 8 * * THU'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  find-new-tool-versions:
+    strategy:
+      fail-fast: false
+      matrix:
+        tool:
+          - name: 'Xamarin'
+            image: 'https://avatars.githubusercontent.com/u/790012?s=200&v=4'
+            releases-url: 'null'
+            filter-parameter: 'null'
+            filter-arch: 'null'
+          - name: 'Python'
+            image: 'https://avatars.githubusercontent.com/u/1525981?s=200&v=4'
+            releases-url: 'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
+            filter-parameter: 'version'
+            filter-arch: 'x64'
+          - name: 'PyPy'
+            image: 'https://avatars.githubusercontent.com/u/318667?s=200&v=4'
+            releases-url: 'https://downloads.python.org/pypy/versions.json'
+            filter-parameter: 'python_version'
+            filter-arch: 'x86'
+          - name: 'Node'
+            image: 'https://avatars.githubusercontent.com/u/9950313?s=200&v=4'
+            releases-url: 'https://raw.githubusercontent.com/actions/node-versions/main/versions-manifest.json'
+            filter-parameter: 'version'
+            filter-arch: 'x64'
+          - name: 'Go'
+            image: 'https://avatars.githubusercontent.com/u/4314092?s=200&v=4'
+            releases-url: 'https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json'
+            filter-parameter: 'version'
+            filter-arch: 'x64'
+    name: 'Searching for new versions of ${{ matrix.tool.name }}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: get-new-tool-versions
+        name: Get new tool versions
+        run: | 
+          $versionsOutput = ./get-new-tool-versions/verify-new-tool-version-added-to-image.ps1 `
+            -ToolName ${{ matrix.tool.name }} `
+            -ReleasesUrl ${{ matrix.tool.releases-url }} `
+            -FilterParameter ${{ matrix.tool.filter-parameter }} `
+            -FilterArch ${{ matrix.tool.filter-arch }}
+          echo "::set-output name=versions-output::$versionsOutput"
+      - name: Check versions
+        if: steps.get-new-tool-versions.outputs.versions-output == ''
+        run: Write-Host "No new versions found"
+      - uses: ./.github/actions/send-slack-notification
+        name: Send Slack notification
+        if: steps.get-new-tool-versions.outputs.versions-output != ''
+        with:
+          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          tool-name: '${{ matrix.tool.name }}'
+          tool-version: ${{ steps.get-new-tool-versions.outputs.versions-output }}
+          image-url: '${{ matrix.tool.image }}'
+          add-to-toolset-flag: '-AddToToolsetFlag'
+
+  check_build:
+    name: Check build for failures 
+    runs-on: ubuntu-latest
+    needs: [find-new-tool-versions]
+    if: failure()
+    steps:
+      - uses: actions/checkout@v2
+      - id: get-failed-jobs
+        name: Get failed jobs
+        run: |
+          $jobs_url = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID/jobs"
+          $failedJobs = (Invoke-RestMethod -Uri $jobs_url).jobs |
+            Where-Object conclusion -eq "failure" |
+            ForEach-Object {"\n\t" + $_.name.split(" ")[-1] + ": $($_.html_url)"}
+          echo "::set-output name=failed-jobs::$failedJobs"
+      - uses: ./.github/actions/send-slack-notification
+        name: Send Slack notification about failure
+        with:
+          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          tool-name: 'Tool name'
+          pipeline-url: '$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID'
+          text: "Missing toolset tool versions checker pipeline has failed jobs:/n/t${{ steps.get-failed-jobs.outputs.failed-jobs }}"
