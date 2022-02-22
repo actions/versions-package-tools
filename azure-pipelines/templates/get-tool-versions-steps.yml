@@ -1,9 +1,0 @@
-steps:
-- task: PowerShell@2
-  displayName: 'Get new versions'
-  name: 'Get_versions'
-  inputs:
-    targetType: filePath
-    filePath: './get-new-tool-versions/get-new-tool-versions.ps1'
-    arguments: |
-        -ToolName "$(TOOL_NAME)"
