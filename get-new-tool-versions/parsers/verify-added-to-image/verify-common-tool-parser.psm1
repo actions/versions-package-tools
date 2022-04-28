@@ -8,8 +8,10 @@ function Search-ToolsVersionsNotOnImage {
     
     $stableReleases = (Invoke-RestMethod $ReleasesUrl) | Where-Object stable -eq $true
     $stableReleaseVersions = $stableReleases | ForEach-Object {
-        if ($ToolName -eq "Node") { 
-            $_.$FilterParameter.split(".")[0] + ".0"
+        if ($ToolName -eq "Node") {
+            if ($_.lts) {
+              $_.$FilterParameter.split(".")[0] + ".0"
+            }
         } else {
             $_.$FilterParameter.split(".")[0,1] -join"."
         }
