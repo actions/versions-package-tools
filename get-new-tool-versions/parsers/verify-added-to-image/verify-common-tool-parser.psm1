@@ -11,7 +11,7 @@ function Search-ToolsVersionsNotOnImage {
         if ($ToolName -eq "Node") {
             if ($_.lts) {
               $_.$FilterParameter.split(".")[0] + ".0"
-            } else { return }
+            }
         } else {
             $_.$FilterParameter.split(".")[0,1] -join"."
         }
