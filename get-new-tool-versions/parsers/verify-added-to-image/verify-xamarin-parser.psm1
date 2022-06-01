@@ -6,7 +6,7 @@ function Search-XamarinVersionsNotOnImage {
 
     $xamarinReleases = (Invoke-RestMethod $ReleasesUrl).items
     $filteredReleases = $xamarinReleases | Where-Object {$_.name -in $FilterProducts.name} | Sort-Object name | Select-Object name, version
-    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-11.json"
+    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/macos/toolsets/toolset-12.json"
     $uploadedReleases = (Invoke-RestMethod $toolsetUrl).xamarin
     $releasesOnImage = @()
     foreach ($FilterProduct in $FilterProducts) {
