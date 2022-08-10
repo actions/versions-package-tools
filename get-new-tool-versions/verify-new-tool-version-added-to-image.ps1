@@ -22,7 +22,7 @@ if ($ToolName -in "Python", "PyPy", "Node", "Go") {
 }
 
 if ($ToolName -eq "Xamarin") {
-    $xamarinReleases = "http://aka.ms/manifest/stable"
+    $xamarinReleases = "http://aka.ms/manifest/stable-2022"
     $xamarinProducts = @(
         [PSCustomObject] @{name = 'Mono Framework'; property = 'mono-versions'}
         [PSCustomObject] @{name = 'Xamarin.Android'; property = 'android-versions'}
