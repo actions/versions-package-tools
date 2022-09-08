@@ -59,7 +59,7 @@ jobs:
         name: Send Slack notification
         if: steps.get-new-tool-versions.outputs.versions-output != ''
         with:
-          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          url: ${{ secrets.SLACK_CHANNEL_HOOK }}
           tool-name: '${{ matrix.tool.name }}'
           tool-version: ${{ steps.get-new-tool-versions.outputs.versions-output }}
           image-url: '${{ matrix.tool.image }}'
@@ -83,7 +83,7 @@ jobs:
       - uses: ./.github/actions/send-slack-notification
         name: Send Slack notification about failure
         with:
-          url: ${{ secrets.SLACK_CHANNEL_URL }}
+          url: ${{ secrets.SLACK_CHANNEL_HOOK }}
           tool-name: 'Tool name'
           pipeline-url: '$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID'
           text: "Missing toolset tool versions checker pipeline has failed jobs:/n/t${{ steps.get-failed-jobs.outputs.failed-jobs }}"
