@@ -21,8 +21,7 @@ $VersionsToBuild = $VersionsFromDist | Where-Object { $VersionsFromManifest -not
 if ($VersionsToBuild) {
     $availableVersions = $VersionsToBuild -join ", "
     Write-Host "The following versions are available to build:`n${availableVersions}"
-    Write-Host "::set-output name=TOOL_VERSIONS::${availableVersions}"
-    Write-Host "##vso[task.setvariable variable=TOOL_VERSIONS;isOutput=true]${availableVersions}"
+    "TOOL_VERSIONS=${availableVersions}" >> $env:GITHUB_OUTPUT
 } else {
     Write-Host "There aren't versions to build"
 }
