@@ -51,7 +51,7 @@ jobs:
             -ReleasesUrl ${{ matrix.tool.releases-url }} `
             -FilterParameter ${{ matrix.tool.filter-parameter }} `
             -FilterArch ${{ matrix.tool.filter-arch }}
-          echo "versions-output=$versionsOutput" >> $GITHUB_OUTPUT
+          echo "versions-output=$versionsOutput" >> $env:GITHUB_OUTPUT
       - name: Check versions
         if: steps.get-new-tool-versions.outputs.versions-output == ''
         run: Write-Host "No new versions found"
@@ -79,7 +79,7 @@ jobs:
           $failedJobs = (Invoke-RestMethod -Uri $jobs_url).jobs |
             Where-Object conclusion -eq "failure" |
             ForEach-Object {"\n\t" + $_.name.split(" ")[-1] + ": $($_.html_url)"}
-          echo "failed-jobs=$failedJobs" >> $GITHUB_OUTPUT
+          echo "failed-jobs=$failedJobs" >> $env:GITHUB_OUTPUT
       - uses: ./.github/actions/send-slack-notification
         name: Send Slack notification about failure
         with:
