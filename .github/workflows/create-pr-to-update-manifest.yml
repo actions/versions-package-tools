@@ -7,7 +7,7 @@ on:
   workflow_call:
     inputs:
       tool-name:
-        description: 'Name of a tool for which PR is created'
+        description: 'Name of the tool for which PR is created'
         required: true
         type: string
 

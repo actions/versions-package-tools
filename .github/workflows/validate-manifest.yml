@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       tool-name:
-        description: 'Name of a tool for which manifest is validated'
+        description: 'Name of the tool for which manifest is validated'
         required: true
         type: string
       image-url:

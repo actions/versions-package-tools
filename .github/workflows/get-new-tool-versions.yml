@@ -11,7 +11,7 @@ on:
   workflow_call:
     inputs:
       tool-name:
-        description: 'Name of a tool for which versions are searched'
+        description: 'Name of the tool for which versions are searched'
         required: true
         type: string
       image-url:
