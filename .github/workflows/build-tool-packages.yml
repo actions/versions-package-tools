@@ -19,7 +19,7 @@ on:
       publish-release:
         description: "Whether to publish releases"
         required: true
-        type: string
+        type: boolean
         
 defaults:
   run:
