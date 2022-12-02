@@ -118,7 +118,7 @@ jobs:
 
     - name: Wait for the logs
       run: |
-        Write-Host "Fake step that do nothing"
+        Write-Host "Fake step that does nothing"
         Write-Host "We need it because log of previous step 'Setup ${{ inputs.tool-name }}' is not available here yet."
         Write-Host "In testing step we analyze build log of 'Setup ${{ inputs.tool-name }}' task"
         Write-Host "to determine if ${{ inputs.tool-name }} version was consumed from cache and was downloaded"
