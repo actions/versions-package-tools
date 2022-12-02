@@ -1,0 +1,201 @@
+# This reusable workflow is used by actions/*-versions repositories
+# It is designed to 
+# - build and test new versions of a tool (Go, Node)
+# - publish a release with a new tool version
+# The GITHUB_TOKEN secret is used to trigger workflow runs and publish releases
+
+name: Generate tool packages
+on:
+  workflow_call:
+    inputs:
+      tool-name:
+        description: "Tool name to build and upload. Supported values are: 'go' and 'node'"
+        required: true
+        type: string
+      tool-version:
+        description: "Tool version to build and upload"
+        required: true
+        type: string
+      publish-release:
+        description: "Whether to publish releases"
+        required: true
+        type: boolean
+        
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build:
+    name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
+    runs-on: ubuntu-latest
+    env: 
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux, darwin, win32]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
+      run: |
+        ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
+                                                     -Platform ${{ matrix.platform }}
+
+    - name: Publish artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ runner.temp }}/artifact
+
+  test:
+    name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
+    needs: build
+    runs-on: ${{ matrix.os }}
+    env: 
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-latest
+          platform: linux
+        - os: macos-latest
+          platform: darwin
+        - os: windows-latest
+          platform: win32
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Fully cleanup the toolcache directory before testing
+      run: ./helpers/clean-toolcache.ps1 -ToolName "${{ inputs.tool-name }}"
+
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        path: ${{ runner.temp }}
+
+    - name: Extract files
+      run: |
+        if ('${{ matrix.platform }}' -eq 'win32') {
+          if ('${{ inputs.tool-name }}' -eq 'node') {
+            $artifactName = "${{ env.ARTIFACT_NAME }}.7z"
+          } elseif ('${{ inputs.tool-name }}' -eq 'go') {            
+            $artifactName = "${{ env.ARTIFACT_NAME }}.zip"
+          } else {
+            Write-Host "Unsupported tool - ${{ inputs.tool-name }}"
+            exit 1
+          }
+          
+          7z.exe x "$artifactName" -y | Out-Null 
+        } else {
+          $artifactName = "${{ env.ARTIFACT_NAME }}.tar.gz"
+          tar -xzf $artifactName
+        }
+      working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
+
+    - name: Apply build artifact to the local machine
+      run: |
+        if ('${{ matrix.platform }}' -eq 'win32') { powershell ./setup.ps1 } else { sh ./setup.sh }
+      working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
+
+    - name: Setup Node.js ${{ inputs.tool-version }}
+      if: inputs.tool-name == 'node'
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.tool-version }}
+
+    - name: Setup Go ${{ inputs.tool-version }}
+      if: inputs.tool-name == 'go'
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ inputs.tool-version }}
+
+    - name: Wait for the logs
+      run: |
+        Write-Host "Fake step that does nothing"
+        Write-Host "We need it because log from the previous step 'Setup ${{ inputs.tool-name }}' is not available here yet."
+        Write-Host "In testing step we analyze build log of 'Setup ${{ inputs.tool-name }}' task"
+        Write-Host "to determine if ${{ inputs.tool-name }} version was consumed from cache or if it was downloaded"
+        for ($i = 0; $i -lt 200; $i++) { Get-Random }
+
+    - name: Run tests
+      env: 
+        VERSION: ${{ inputs.tool-version }}
+      run: |
+        Install-Module Pester -Force -Scope CurrentUser
+        Import-Module Pester
+        $toolName = (Get-Culture).TextInfo.ToTitleCase("${{ inputs.tool-name }}")
+        Invoke-Pester -Script ./$toolName.Tests.ps1 -EnableExit
+      working-directory: ./tests
+
+  publish_release:
+    name: Publish release
+    if: inputs.publish-release
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v3
+
+    - name: Generate release body
+      id: generate-release-body
+      run: |        
+        if ('${{ inputs.tool-name }}' -eq 'node') {
+          $releaseBody = 'Node.js ${{ inputs.tool-version }}'
+        } else {
+          $releaseBody = 'Go ${{ inputs.tool-version }}'
+        }
+        echo "RELEASE_BODY=$releaseBody" >> $env:GITHUB_OUTPUT
+
+    - name: Publish Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ inputs.tool-version }}-${{ github.run_id }}
+        release_name: ${{ inputs.tool-version }}
+        body: |
+          ${{ steps.generate-release-body.outputs.RELEASE_BODY }}
+
+    - name: Upload release assets
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+
+          for (let artifactDir of fs.readdirSync('.')) {
+            let artifactName = fs.readdirSync(`${artifactDir}`)[0];
+
+            console.log(`Upload ${artifactName} asset`);
+            github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ steps.create_release.outputs.id }},
+              name: artifactName,
+              data: fs.readFileSync(`./${artifactDir}/${artifactName}`) 
+            });
+          }
+
+  trigger_pr:
+    name: Trigger "Create Pull Request" workflow
+    needs: publish_release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger "Create Pull Request" workflow
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'create-pr.yml',
+            ref: 'main'
+          });

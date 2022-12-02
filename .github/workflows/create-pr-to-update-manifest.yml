@@ -1,0 +1,43 @@
+# This reusable workflow is used by actions/*-versions repositories
+# It is designed to create a PR with update of versions-manifest.json when a new release is published
+# The GITHUB_TOKEN secret is used to create versions-manifest.json and publish related PR
+
+name: Create Pull Request
+on:
+  workflow_call:
+    inputs:
+      tool-name:
+        description: 'Name of the tool for which PR is created'
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  create_pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Create versions-manifest.json
+      run: |
+        ./helpers/packages-generation/manifest-generator.ps1 -RepositoryFullName "$env:GITHUB_REPOSITORY" `
+                                                             -GitHubAccessToken "${{ secrets.GITHUB_TOKEN }}" `
+                                                             -OutputFile "./versions-manifest.json" `
+                                                             -ConfigurationFile "./config/${{ inputs.tool-name }}-manifest-config.json"
+    
+    - name: Create GitHub PR
+      run: |
+        $formattedDate = Get-Date -Format "MM/dd/yyyy"
+        ./helpers/github/create-pull-request.ps1 `
+                            -RepositoryFullName "$env:GITHUB_REPOSITORY" `
+                            -AccessToken "${{ secrets.GITHUB_TOKEN }}" `
+                            -BranchName "update-versions-manifest-file" `
+                            -CommitMessage "Update versions-manifest" `
+                            -PullRequestTitle "[versions-manifest] Update for release from ${formattedDate}" `
+                            -PullRequestBody "Update versions-manifest.json for release from ${formattedDate}"
