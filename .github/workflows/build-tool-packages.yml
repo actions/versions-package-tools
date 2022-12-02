@@ -136,7 +136,7 @@ jobs:
 
   publish_release:
     name: Publish release
-    if: inputs.publish-release == 'true'
+    if: inputs.publish-release
     needs: test
     runs-on: ubuntu-latest
     steps:
