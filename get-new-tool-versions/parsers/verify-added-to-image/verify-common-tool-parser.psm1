@@ -16,7 +16,7 @@ function Search-ToolsVersionsNotOnImage {
             $_.$FilterParameter.split(".")[0,1] -join"."
         }
     } | Select-Object -Unique
-    $toolsetUrl = "https://raw.githubusercontent.com/actions/virtual-environments/main/images/win/toolsets/toolset-2022.json"
+    $toolsetUrl = "https://raw.githubusercontent.com/actions/runner-images/main/images/win/toolsets/toolset-2022.json"
     $latestMinorVersion = (Invoke-RestMethod $toolsetUrl).toolcache |
         Where-Object {$_.name -eq $ToolName -and $_.arch -eq $FilterArch} | 
         ForEach-Object {$_.versions.Replace("*","0")} |
