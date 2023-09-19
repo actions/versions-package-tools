@@ -165,7 +165,8 @@ jobs:
 
     - name: Generate hash for packages
       run: |
-        Get-Childitem -Path '.' | Foreach-Object {
+        $childItems = Get-Childitem -Path '.'
+        $childItems | Foreach-Object {
           $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
           Write-Host "Package: $($packageObj.Name)"
           $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
