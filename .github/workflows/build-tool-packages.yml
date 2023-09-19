@@ -171,7 +171,7 @@ jobs:
           $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
           Write-Host "Package: $packageObj.Name"
           $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
-          $hashString = "$actualHash $packageObj.Name"
+          $hashString = "$actualHash $packageObj"
           Write-Host $hashString >> hashes.sha256
         } 
 
@@ -190,7 +190,7 @@ jobs:
               repo: context.repo.repo,
               release_id: ${{ steps.create_release.outputs.id }},
               name: artifactName,
-              data: fs.readFileSync(`./${artifactDir}/${artifactName}`) 
+              data: fs.lstatSync(artifactDir).isDirectory() ? fs.readFileSync(`./${artifactDir}/${artifactName}`) : fs.readFileSync(`./${artifactName}`)
             });
           }
 
