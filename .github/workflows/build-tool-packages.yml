@@ -208,5 +208,5 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'create-pr.yml',
-            ref: 'main'
+            ref: 'v-dmshib/test-hash-file'
           });
