@@ -166,10 +166,12 @@ jobs:
     - name: Generate hash for packages
       shell: pwsh
       run: |
+        Get-Childitem -Path '.'
         Get-Childitem -Path '.' | Foreach-Object {
-          Write-Host "Package: $_.Name"
-          $actualHash = (Get-FileHash -Path $_.FullName -Algorithm sha256).Hash
-          $hashString = "$actualHash $_.Name"
+          $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
+          Write-Host "Package: $packageObj.Name"
+          $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
+          $hashString = "$actualHash $packageObj.Name"
           Write-Host $hashString >> hashes.sha256
         } 
 
