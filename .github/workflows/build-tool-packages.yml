@@ -164,14 +164,12 @@ jobs:
           ${{ steps.generate-release-body.outputs.RELEASE_BODY }}
 
     - name: Generate hash for packages
-      shell: pwsh
       run: |
-        Get-Childitem -Path '.'
         Get-Childitem -Path '.' | Foreach-Object {
           $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
-          Write-Host "Package: $packageObj.Name"
+          Write-Host "Package: $($packageObj.Name)"
           $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
-          $hashString = "$actualHash $packageObj"
+          $hashString = "$actualHash $($packageObj.Name)"
           Write-Host "$hashString"
           Add-Content -Path ./hashes.sha256 -Value "$hashString"
         } 
@@ -186,9 +184,6 @@ jobs:
             let artifactName = fs.lstatSync(artifactDir).isDirectory() ? fs.readdirSync(`${artifactDir}`)[0] : artifactDir;
             
             console.log(`Upload ${artifactName} asset`);
-            if (!fs.lstatSync(artifactDir).isDirectory()) {
-              console.log(fs.readFileSync(`./${artifactName}`).toString());
-            }
             github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
