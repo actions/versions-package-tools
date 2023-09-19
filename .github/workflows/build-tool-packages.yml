@@ -172,7 +172,8 @@ jobs:
           Write-Host "Package: $packageObj.Name"
           $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
           $hashString = "$actualHash $packageObj"
-          Write-Host $hashString >> hashes.sha256
+          Write-Host "$hashString"
+          Add-Content -Path ./hashes.sha256 -Value "$hashString"
         } 
 
     - name: Upload release assets
