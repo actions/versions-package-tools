@@ -67,7 +67,7 @@ function Build-VersionsManifest {
         
         $ltsStatus = Get-VersionLtsStatus -Version $versionKey -LtsRules $ltsRules
         $stable = $version.PreReleaseLabel ? $false : $true
-        [array]$releaseAssets = $release.assets | ForEach-Object { New-AssetItem -ReleaseAsset $_ -Configuration $Configuration }
+        [array]$releaseAssets = $release.assets | Where { $_.Name -ne "hashes.sha256" } | ForEach-Object { New-AssetItem -ReleaseAsset $_ -Configuration $Configuration }
 
         $versionHash = [PSCustomObject]@{}
         $versionHash | Add-Member -Name "version" -Value $versionKey -MemberType NoteProperty
