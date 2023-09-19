@@ -163,15 +163,24 @@ jobs:
         body: |
           ${{ steps.generate-release-body.outputs.RELEASE_BODY }}
 
+    - name: Generate hash for packages
+      shell: pwsh
+      run: |
+        Get-Childitem -Path '.' | Foreach-Object {
+          Write-Host "Package: $_.Name"
+          $actualHash = (Get-FileHash -Path $_.FullName -Algorithm sha256).Hash
+          $hashString = "$actualHash $_.Name"
+          Write-Host $hashString >> hashes.sha256
+        } 
+
     - name: Upload release assets
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs');
-
           for (let artifactDir of fs.readdirSync('.')) {
-            let artifactName = fs.readdirSync(`${artifactDir}`)[0];
+            let artifactName = fs.lstatSync(artifactDir).isDirectory() ? fs.readdirSync(`${artifactDir}`)[0] : artifactDir;
 
             console.log(`Upload ${artifactName} asset`);
             github.rest.repos.uploadReleaseAsset({
