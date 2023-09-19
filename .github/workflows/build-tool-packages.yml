@@ -38,6 +38,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
+        ref: v-dmshib/test-hash-file
         submodules: true
 
     - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
