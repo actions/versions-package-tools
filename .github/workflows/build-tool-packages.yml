@@ -183,7 +183,7 @@ jobs:
           const fs = require('fs');
           for (let artifactDir of fs.readdirSync('.')) {
             let artifactName = fs.lstatSync(artifactDir).isDirectory() ? fs.readdirSync(`${artifactDir}`)[0] : artifactDir;
-            
+
             console.log(`Upload ${artifactName} asset`);
             github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
@@ -208,5 +208,5 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'create-pr.yml',
-            ref: 'v-dmshib/test-hash-file'
+            ref: 'main'
           });
