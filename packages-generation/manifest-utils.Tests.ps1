@@ -77,6 +77,7 @@ Describe "Build-VersionsManifest" {
     $assets = @(
         @{ name = "python-3.8.3-linux-16.04-x64.tar.gz"; browser_download_url = "fake_url"; }
         @{ name = "python-3.8.3-linux-18.04-x64.tar.gz"; browser_download_url = "fake_url"; }
+        @{ name = "hashes.sha256"; browser_download_url = "fake_url"; }
     )
     $configuration = @{
         regex = "python-\d+\.\d+\.\d+-(\w+)-([\w\.]+)?-?(x\d+)";
