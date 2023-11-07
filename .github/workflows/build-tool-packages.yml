@@ -27,14 +27,18 @@ defaults:
 
 jobs:
   build:
-    name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
+    name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
     runs-on: ubuntu-latest
     env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
     strategy:
       fail-fast: false
       matrix:
         platform: [linux, darwin, win32]
+        architecture: [x64]
+        include:
+        - architecture: arm64
+          platform: darwin
     steps:
     - uses: actions/checkout@v3
       with:
@@ -43,7 +47,8 @@ jobs:
     - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
       run: |
         ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
-                                                     -Platform ${{ matrix.platform }}
+                                                     -Platform ${{ matrix.platform }} `
+                                                     -Architecture ${{ matrix.architecture }}
 
     - name: Publish artifact
       uses: actions/upload-artifact@v3
