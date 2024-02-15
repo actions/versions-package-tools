@@ -37,8 +37,14 @@ jobs:
         platform: [linux, darwin, win32]
         architecture: [x64]
         include:
-        - architecture: arm64
-          platform: darwin
+         - platform: darwin
+            architecture: arm64
+         - platform: linux
+            architecture: arm64
+         - platform: win32
+            architecture: arm64
+            
+          
     steps:
     - uses: actions/checkout@v3
       with:
@@ -110,7 +116,7 @@ jobs:
       working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
     - name: Setup Node.js ${{ inputs.tool-version }}
-      if: inputs.tool-name == 'node'
+      if: inputs.tool-name == 'node' && matrix.node == true
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.tool-version }}
