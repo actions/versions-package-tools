@@ -35,14 +35,8 @@ jobs:
       fail-fast: false
       matrix:
         platform: [linux, darwin, win32]
-        architecture: [x64]
-        include:
-         - platform: darwin
-            architecture: arm64
-         - platform: linux
-            architecture: arm64
-         - platform: win32
-            architecture: arm64
+        architecture: [x64, arm64]
+        
             
           
     steps:
@@ -116,7 +110,7 @@ jobs:
       working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
     - name: Setup Node.js ${{ inputs.tool-version }}
-      if: inputs.tool-name == 'node' || matrix.node == true
+      if: inputs.tool-name == 'node'
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.tool-version }}
