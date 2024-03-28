@@ -6,7 +6,7 @@
 
 name: Generate tool packages
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       tool-name:
         description: "Tool name to build and upload. Supported values are: 'go' and 'node'"
