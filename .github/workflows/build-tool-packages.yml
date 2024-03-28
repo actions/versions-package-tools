@@ -28,45 +28,31 @@ defaults:
 jobs:
   build:
     name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
-    runs-on: Ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux, darwin, win32]
-        architecture: [x64]
-        
-            
-          
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
-
-    - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
-      run: |
-        ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
-                                                     -Platform ${{ matrix.platform }} `
-                                                     -Architecture ${{ matrix.architecture }}
-
-    - name: Publish artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ runner.temp }}/artifact
-
-  build-arm:
-    name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
-    runs-on: windows-latest
-    env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [linux, darwin, win32]
-        architecture: [arm64]
-        
+        include:
+        - os: ubuntu-latest
+          platform: linux
+          architecture: x64
+        - os: ubuntu-latest
+          platform: darwin
+          architecture: x64
+        - os: ubuntu-latest
+          platform: win32
+          architecture: x64
+        - os: ubuntu-latest
+          platform: linux
+          architecture: arm64
+        - os: ubuntu-latest
+          platform: darwin
+          architecture: arm64
+        - os: windows-latest
+          platform: win32
+          architecture: arm64
             
           
     steps:
