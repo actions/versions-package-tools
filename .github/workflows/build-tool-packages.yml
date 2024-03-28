@@ -93,8 +93,14 @@ jobs:
           } elseif ('${{ inputs.tool-name }}' -eq 'go') {            
             $artifactName = "${{ env.ARTIFACT_NAME }}.zip"
           } else {
+            
+            if ('${{ inputs.tool-name }}' -eq 'node') {
+            $artifactName = "${{ env.ARTIFACT_NAME }}.zip"
+          }else
             Write-Host "Unsupported tool - ${{ inputs.tool-name }}"
             exit 1
+          }
+            
           }
           
           7z.exe x "$artifactName" -y | Out-Null 
