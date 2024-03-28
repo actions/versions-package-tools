@@ -50,9 +50,6 @@ jobs:
         - os: ubuntu-latest
           platform: darwin
           architecture: arm64
-        - os: windows-latest
-          platform: win32
-          architecture: arm64
             
           
     steps:
