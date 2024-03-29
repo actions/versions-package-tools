@@ -25,6 +25,7 @@ defaults:
   run:
     shell: pwsh
 
+# Fix for windows arm64 7z file issue. More details at https://github.com/nodejs/node/issues/52231
 jobs:
   build:
     name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
@@ -72,7 +73,6 @@ jobs:
   build-arm:
     name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
     runs-on: windows-latest
-    #if: (('${{ inputs.tool-name }}' -eq 'go') || ('${{ inputs.tool-name }}' -eq 'node' &&  '${{ inputs.tool-version }}' -gt '20.0.0'))
     if: (inputs.tool-name == 'go') || (inputs.tool-name == 'node' && inputs['tool-version'] > '20.0.0')
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
