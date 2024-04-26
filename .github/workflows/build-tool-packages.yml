@@ -115,7 +115,7 @@ jobs:
         include:
         - os: ubuntu-latest
           platform: linux
-        - os: macos-latest-large
+        - os: macos-14-large
           platform: darwin
         - os: windows-latest
           platform: win32
