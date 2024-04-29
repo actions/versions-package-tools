@@ -107,19 +107,19 @@ jobs:
     name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
     needs: build
     runs-on: ${{ matrix.os }}
-    env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
     strategy:
-      fail-fast: false
       matrix:
-        include:
-        - os: ubuntu-latest
-          platform: linux
-        - os: macos-14-large
-          platform: darwin
-        - os: windows-latest
-          platform: win32
+        os: [ubuntu-latest, macos-14-large, windows-latest]
+        platform: [linux, darwin, win32]
     steps:
+    - name: Get architecture
+      id: get-arch
+      run: echo "::set-output name=architecture::$(uname -m)"
+      shell: bash
+
+    - name: Build
+      env:
+        ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ steps.get-arch.outputs.architecture }}
     - uses: actions/checkout@v3
       with:
         submodules: true
