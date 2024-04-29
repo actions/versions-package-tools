@@ -137,7 +137,7 @@ jobs:
         path: ${{ runner.temp }}
     - name: Set env
       run: echo "RUNNER_ARCH=$(uname -m)" >> $GITHUB_ENV
-      shell: bash
+      
 
     - name: Set ARTIFACT_NAME
       run: |
@@ -145,8 +145,7 @@ jobs:
          echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-arm64" >> $GITHUB_ENV
          else
          echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64" >> $GITHUB_ENV
-         fi
-      shell: bash
+        
     - name: Extract files
       run: |
         if ('${{ matrix.platform }}' -eq 'win32') {
