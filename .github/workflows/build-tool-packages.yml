@@ -140,13 +140,13 @@ jobs:
       
 
     - name: Set ARTIFACT_NAME
+      shell: pwsh
       run: |
-         if [[ "${{ matrix.platform }}" == "darwin" && "${RUNNER_ARCH}" == "arm64" ]]; then
-         echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-arm64" >> $GITHUB_ENV
-         else
-         echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64" >> $GITHUB_ENV
-         fi
-      shell: bash
+       if ("${{ matrix.platform }}" -eq "darwin" -and "${env:RUNNER_ARCH}" -eq "arm64") {
+       echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-arm64" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+       } else {
+       echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+       }
     - name: Extract files
       run: |
         if ('${{ matrix.platform }}' -eq 'win32') {
