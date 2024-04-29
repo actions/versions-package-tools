@@ -108,7 +108,7 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}--${{ matrix.arch }}
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
@@ -122,7 +122,6 @@ jobs:
         - os: windows-latest
           platform: win32
           arch: x64
-
 
     steps:
     - uses: actions/checkout@v3
