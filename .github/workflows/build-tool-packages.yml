@@ -108,17 +108,20 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
         include:
         - os: ubuntu-latest
           platform: linux
+          arch: x64
         - os: macos-latest
           platform: darwin
+          arch: arm64
         - os: windows-latest
           platform: win32
+          arch: x64
     steps:
     - uses: actions/checkout@v3
       with:
@@ -127,24 +130,10 @@ jobs:
     - name: Fully cleanup the toolcache directory before testing
       run: ./helpers/clean-toolcache.ps1 -ToolName "${{ inputs.tool-name }}"
 
-       
-    - name: Get architecture
-      id: get-arch
-      shell: bash
-      run: |
-        if [[ "${{ matrix.platform }}" == "darwin" ]]; then
-          echo "ARCH=$(uname -m)" >> $GITHUB_ENV
-        else
-          echo "ARCH=x64" >> $GITHUB_ENV
-        fi
-
-    - name: Set env
-      run: echo "ARTIFACT_NAME=${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-$ARCH" >> $GITHUB_ENV
-
-
     - name: Download artifact
       uses: actions/download-artifact@v3
       with:
+        name: ${{ env.ARTIFACT_NAME }}
         path: ${{ runner.temp }}
 
     - name: Extract files
