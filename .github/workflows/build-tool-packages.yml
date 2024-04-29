@@ -108,17 +108,21 @@ jobs:
     needs: build
     runs-on: ${{ matrix.os }}
     env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-x64
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}--${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
         include:
         - os: ubuntu-latest
           platform: linux
-        - os: macos-latest-large
+          arch: x64
+        - os: macos-latest
           platform: darwin
+          arch: arm64
         - os: windows-latest
           platform: win32
+          arch: x64
+
 
     steps:
     - uses: actions/checkout@v3
