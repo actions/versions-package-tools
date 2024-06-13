@@ -70,7 +70,7 @@ jobs:
           arch: x64
         - os: ubuntu-latest
           platform: linux
-          architecture: arm64
+          arch: arm64
         - os: macos-latest
           platform: darwin
           arch: arm64
