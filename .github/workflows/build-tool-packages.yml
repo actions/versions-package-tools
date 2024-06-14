@@ -68,7 +68,7 @@ jobs:
         - os: ubuntu-latest
           platform: linux
           arch: x64
-        - os: ubuntu-22.04_arm64
+        - os: ubuntu-latest
           platform: linux
           arch: arm64
         - os: macos-latest
