@@ -38,7 +38,7 @@ jobs:
         architecture: [x64, arm64]
                    
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -74,7 +74,7 @@ jobs:
         - os: macos-latest
           platform: darwin
           arch: arm64
-        - os: macos-latest
+        - os: macos-13
           platform: darwin
           arch: x64
         - os: windows-latest
