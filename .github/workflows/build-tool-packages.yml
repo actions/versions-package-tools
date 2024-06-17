@@ -54,6 +54,8 @@ jobs:
         - os: ubuntu-latest
           platform: darwin
           architecture: arm64
+
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -110,14 +112,14 @@ jobs:
         if ('${{ matrix.platform }}' -eq 'win32') {
           if ('${{ inputs.tool-name }}' -eq 'node') {
             $artifactName = "${{ env.ARTIFACT_NAME }}.7z"
-          } elseif ('${{ inputs.tool-name }}' -eq 'go') { 
+          } elseif ('${{ inputs.tool-name }}' -eq 'go') {
             $artifactName = "${{ env.ARTIFACT_NAME }}.zip"
           } else {
             Write-Host "Unsupported tool - ${{ inputs.tool-name }}"
             exit 1
           }
 
-          7z.exe x "$artifactName" -y | Out-Null
+          7z.exe x "$artifactName" -y | Out-Null 
         } else {
           $artifactName = "${{ env.ARTIFACT_NAME }}.tar.gz"
           tar -xzf $artifactName
@@ -169,7 +171,7 @@ jobs:
 
     - name: Generate release body
       id: generate-release-body
-      run: |  
+      run: |    
         if ('${{ inputs.tool-name }}' -eq 'node') {
           $releaseBody = 'Node.js ${{ inputs.tool-version }}'
         } else {
@@ -208,7 +210,7 @@ jobs:
           const fs = require('fs');
           for (let artifactDir of fs.readdirSync('.')) {
             let artifactName = fs.lstatSync(artifactDir).isDirectory() ? fs.readdirSync(`${artifactDir}`)[0] : artifactDir;
-            
+
             console.log(`Upload ${artifactName} asset`);
             github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
