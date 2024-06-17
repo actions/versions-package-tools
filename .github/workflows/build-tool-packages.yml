@@ -20,7 +20,7 @@ on:
         description: "Whether to publish releases"
         required: true
         type: boolean
-
+      
 defaults:
   run:
     shell: pwsh
@@ -66,7 +66,7 @@ jobs:
         ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
                                                      -Platform ${{ matrix.platform }} `
                                                      -Architecture ${{ matrix.architecture }}
-
+                                                    
 
     - name: Publish artifact
       uses: actions/upload-artifact@v3
@@ -118,7 +118,7 @@ jobs:
             Write-Host "Unsupported tool - ${{ inputs.tool-name }}"
             exit 1
           }
-
+          
           7z.exe x "$artifactName" -y | Out-Null 
         } else {
           $artifactName = "${{ env.ARTIFACT_NAME }}.tar.gz"
@@ -220,6 +220,7 @@ jobs:
               data: fs.lstatSync(artifactDir).isDirectory() ? fs.readFileSync(`./${artifactDir}/${artifactName}`) : fs.readFileSync(`./${artifactName}`).toString()
             });
           }
+          
   trigger_pr:
     name: Trigger "Create Pull Request" workflow
     needs: publish_release
