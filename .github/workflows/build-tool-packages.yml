@@ -86,9 +86,7 @@ jobs:
           arch: arm64
 
     steps:
-    - name: Add Git to PATH
-      run: echo "/usr/local/bin" >> $GITHUB_PATH
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
