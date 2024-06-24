@@ -69,21 +69,12 @@ jobs:
         - os: ubuntu-latest
           platform: linux
           arch: x64
-        - os: setup-actions-ubuntu-arm64-2-core
-          platform: linux
-          arch: arm64
         - os: macos-latest
           platform: darwin
           arch: arm64
-        - os: macos-13
-          platform: darwin
-          arch: x64
         - os: windows-latest
           platform: win32
           arch: x64
-        - os: setup-actions-windows-arm64-4-core
-          platform: win32
-          arch: arm64
 
     steps:
     - uses: actions/checkout@v3
