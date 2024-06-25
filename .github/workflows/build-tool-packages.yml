@@ -225,7 +225,7 @@ jobs:
       env: 
         VERSION: ${{ inputs.tool-version }}
       run: |
-        Install-Module Pester -Force -Scope -SkipPublisherCheck
+        Install-Module Pester -Force -Scope CurrentUser -SkipPublisherCheck
         Import-Module Pester
         $toolName = (Get-Culture).TextInfo.ToTitleCase("${{ inputs.tool-name }}")
         Invoke-Pester -Script ./$toolName.Tests.ps1 -EnableExit
