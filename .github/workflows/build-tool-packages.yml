@@ -86,9 +86,6 @@ jobs:
           arch: arm64
     
     steps:
-    - uses: actions/checkout@v3
-      with:
-          submodules: true
     - name: Setup Environment on Windows ARM64 Runner
       if: matrix.os == 'setup-actions-windows-arm64-4-core'
       shell: powershell
@@ -111,8 +108,10 @@ jobs:
              # Install 7-Zip
             choco install 7zip -y
             echo "C:\ProgramData\chocolatey\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-    
-   
+            
+    - uses: actions/checkout@v3
+      with:
+          submodules: true
     
     - name: Fully cleanup the toolcache directory before testing
       run: ./helpers/clean-toolcache.ps1 -ToolName "${{ inputs.tool-name }}"
