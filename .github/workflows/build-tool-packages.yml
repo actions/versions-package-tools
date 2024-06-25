@@ -213,6 +213,14 @@ jobs:
         Write-Host "to determine if ${{ inputs.tool-name }} version was consumed from cache or if it was downloaded"
         for ($i = 0; $i -lt 200; $i++) { Get-Random }
 
+    - name: Create directories
+      if: matrix.os == 'setup-actions-windows-arm64-4-core'
+      run: mkdir "~/runners/_diag/pages"
+    - name: Create directories
+      if: matrix.os == 'setup-actions-ubuntu-arm64-2-core'
+      run: mkdir -p "~/runners/_diag/pages"
+      
+
     - name: Run tests
       env: 
         VERSION: ${{ inputs.tool-version }}
