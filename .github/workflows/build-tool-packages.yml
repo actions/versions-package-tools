@@ -104,7 +104,7 @@ jobs:
         path: ${{ runner.temp }}/artifact
 
   test:
-    name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
+    name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.arch }}]
     needs: build
     runs-on: ${{ matrix.os }}
     env: 
