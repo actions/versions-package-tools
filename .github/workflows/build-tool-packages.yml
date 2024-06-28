@@ -215,7 +215,7 @@ jobs:
 
     - name: Create directories
       if: matrix.os == 'setup-actions-windows-arm64-4-core'
-      run: mkdir "/home/runner/runners"
+      run: mkdir -p "/home/runner/runners"
     - name: Create directories
       if: matrix.os == 'setup-actions-ubuntu-arm64-2-core'
       run: mkdir -p "/home/runner/runners"
