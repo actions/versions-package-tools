@@ -214,12 +214,9 @@ jobs:
         for ($i = 0; $i -lt 200; $i++) { Get-Random }
 
     - name: Create directories
-      if: matrix.os == 'setup-actions-windows-arm64-4-core'
+      if: matrix.os == 'setup-actions-windows-arm64-4-core' || matrix.os == 'setup-actions-ubuntu-arm64-2-core'
       run: mkdir -p "/home/runner/runners"
-    - name: Create directories
-      if: matrix.os == 'setup-actions-ubuntu-arm64-2-core'
-      run: mkdir -p "/home/runner/runners"
-      
+ 
 
     - name: Run tests
       env: 
