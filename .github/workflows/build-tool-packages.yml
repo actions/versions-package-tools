@@ -1,4 +1,3 @@
-
 # This reusable workflow is used by actions/*-versions repositories
 # It is designed to 
 # - build and test new versions of a tool (Go, Node)
@@ -28,68 +27,90 @@ defaults:
 
 
 jobs:
+
   build:
     name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
     runs-on: ubuntu-latest
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
+      excludewinarm: ${{ !(inputs.tool-name == 'node' && inputs['tool-version'] < '20.0.0' && matrix.architecture == 'arm64' && matrix.platform == 'win32') }}
     strategy:
       fail-fast: false
       matrix:
-       platform: [linux, darwin, win32]
-       architecture: [x64, arm64]
+        platform: [linux, darwin, win32]
+        architecture: [x64, arm64]
             
     steps:
-    - uses: actions/checkout@v4
+    - name: checkout
+      if: env.excludewinarm == 'true'
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
+      if: env.excludewinarm == 'true'
       run: |
         ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
                                                      -Platform ${{ matrix.platform }} `
                                                      -Architecture ${{ matrix.architecture }}
 
     - name: Publish artifact
-      uses: actions/upload-artifact@v3
+      if: env.excludewinarm == 'true'
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ runner.temp }}/artifact
 
   test:
-    name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}]
+    name: Test ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
     needs: build
     runs-on: ${{ matrix.os }}
     env: 
-      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.arch }}
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
+      excludewinarm: ${{ !(inputs.tool-name == 'node' && inputs['tool-version'] < '20.0.0' && matrix.architecture == 'arm64' && matrix.platform == 'win32') }}
     strategy:
       fail-fast: false
       matrix:
         include:
         - os: ubuntu-latest
           platform: linux
-          arch: x64
-        - os: macos-latest
+          architecture: x64
+        - os: macos-13
           platform: darwin
-          arch: arm64
+          architecture: x64
         - os: windows-latest
           platform: win32
-          arch: x64
+          architecture: x64
+        - os: ubuntu-latest
+          platform: linux
+          architecture: arm64
+        - os: macos-latest
+          platform: darwin
+          architecture: arm64
+        - os: windows-latest
+          platform: win32
+          architecture: arm64
 
     steps:
-    - uses: actions/checkout@v3
+    - name: checkout
+      if: env.excludewinarm == 'true'
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Fully cleanup the toolcache directory before testing
+      if: env.excludewinarm == 'true'
       run: ./helpers/clean-toolcache.ps1 -ToolName "${{ inputs.tool-name }}"
 
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      if: env.excludewinarm == 'true'
+      uses: actions/download-artifact@v4
       with:
-        path: ${{ runner.temp }}
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
     - name: Extract files
+      if: env.excludewinarm == 'true'
       run: |
         if ('${{ matrix.platform }}' -eq 'win32') {
           if ('${{ inputs.tool-name }}' -eq 'node') {
@@ -109,23 +130,28 @@ jobs:
       working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
     - name: Apply build artifact to the local machine
+      if: env.excludewinarm == 'true'
       run: |
-        if ('${{ matrix.platform }}' -eq 'win32') { powershell ./setup.ps1 } else { sh ./setup.sh }
+        if ('${{ matrix.platform }}' -eq 'win32') { powershell ./setup.ps1 } 
+         else {
+              sh ./setup.sh
+            }
       working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
     - name: Setup Node.js ${{ inputs.tool-version }}
-      if: inputs.tool-name == 'node'
-      uses: actions/setup-node@v3
+      if: env.excludewinarm == 'true' && inputs.tool-name == 'node'
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.tool-version }}
 
     - name: Setup Go ${{ inputs.tool-version }}
       if: inputs.tool-name == 'go'
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ inputs.tool-version }}
 
     - name: Wait for the logs
+      if: env.excludewinarm == 'true'
       run: |
         Write-Host "Fake step that does nothing"
         Write-Host "We need it because log from the previous step 'Setup ${{ inputs.tool-name }}' is not available here yet."
@@ -134,6 +160,7 @@ jobs:
         for ($i = 0; $i -lt 200; $i++) { Get-Random }
 
     - name: Run tests
+      if: env.excludewinarm == 'true'
       env: 
         VERSION: ${{ inputs.tool-version }}
       run: |
@@ -149,7 +176,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
 
     - name: Generate release body
       id: generate-release-body
@@ -185,7 +212,7 @@ jobs:
         } 
 
     - name: Upload release assets
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -209,7 +236,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Trigger "Create Pull Request" workflow
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
