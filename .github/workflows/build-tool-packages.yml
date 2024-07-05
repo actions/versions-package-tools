@@ -51,7 +51,7 @@ jobs:
                                                      -Architecture ${{ matrix.architecture }}
 
     - name: Publish artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ runner.temp }}/artifact
@@ -108,7 +108,7 @@ jobs:
              # Install 7-Zip
             choco install 7zip -y
             echo "C:\ProgramData\chocolatey\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -116,7 +116,7 @@ jobs:
       run: ./helpers/clean-toolcache.ps1 -ToolName "${{ inputs.tool-name }}"
 
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ${{ runner.temp }}
 
@@ -146,13 +146,13 @@ jobs:
 
     - name: Setup Node.js ${{ inputs.tool-version }}
       if: inputs.tool-name == 'node'
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.tool-version }}
 
     - name: Setup Go ${{ inputs.tool-version }}
       if: inputs.tool-name == 'go'
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ inputs.tool-version }}
 
@@ -180,7 +180,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
 
     - name: Generate release body
       id: generate-release-body
@@ -216,7 +216,7 @@ jobs:
         } 
 
     - name: Upload release assets
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -240,7 +240,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Trigger "Create Pull Request" workflow
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
