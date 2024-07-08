@@ -72,6 +72,7 @@ jobs:
         - os: setup-actions-ubuntu-arm64-2-core
           platform: linux
           arch: arm64
+          runner_type: self-hosted
         - os: macos-13
           platform: darwin
           arch: x64
@@ -84,6 +85,7 @@ jobs:
         - os: setup-actions-windows-arm64-4-core
           platform: win32
           arch: arm64
+          runner_type: self-hosted
 
     steps:
     - name: Setup Environment on Windows ARM64 Runner
