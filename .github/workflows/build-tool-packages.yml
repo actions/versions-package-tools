@@ -68,6 +68,7 @@ jobs:
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
       excludewinarm: ${{ !(inputs.tool-name == 'node' && inputs['tool-version'] < '20.0.0' && matrix.architecture == 'arm64' && matrix.platform == 'win32') }}
+      RUNNER_TYPE: ${{ matrix.runner_type }}
     strategy:
       fail-fast: false
       matrix:
@@ -81,17 +82,41 @@ jobs:
         - os: windows-latest
           platform: win32
           architecture: x64
-        - os: ubuntu-latest
+        - os: setup-actions-ubuntu-arm64-2-core
           platform: linux
           architecture: arm64
+          runner_type: self-hosted
         - os: macos-latest
           platform: darwin
           architecture: arm64
-        - os: windows-latest
+        - os: setup-actions-windows-arm64-4-core
           platform: win32
           architecture: arm64
+          runner_type: self-hosted
 
     steps:
+    - name: Setup Environment on Windows ARM64 Runner
+      if: matrix.os == 'setup-actions-windows-arm64-4-core'
+      shell: powershell
+      run: |
+            # Install Chocolatey
+            Set-ExecutionPolicy Bypass -Scope Process -Force
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            echo "C:\ProgramData\Chocolatey\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+        
+            # Install PowerShell
+            choco install powershell-core -y
+            echo "C:\Program Files\PowerShell\7" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+        
+            # Install Git
+            choco install git -y
+            echo "C:\Program Files\Git\cmd" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+        
+            
+             # Install 7-Zip
+            choco install 7zip -y
+            echo "C:\ProgramData\chocolatey\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
     - name: checkout
       if: env.excludewinarm == 'true'
       uses: actions/checkout@v4
