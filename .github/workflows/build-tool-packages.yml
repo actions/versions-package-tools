@@ -68,6 +68,7 @@ jobs:
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
       excludewinarm: ${{ !(inputs.tool-name == 'node' && inputs['tool-version'] < '20.0.0' && matrix.architecture == 'arm64' && matrix.platform == 'win32') }}
+      RUNNER_TYPE: ${{ matrix.runner_type }}
     strategy:
       fail-fast: false
       matrix:
