@@ -40,7 +40,7 @@ jobs:
             filter-parameter: 'version'
             filter-arch: 'x64'
     name: 'Searching for new versions of ${{ matrix.tool.name }}'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
       - id: get-new-tool-versions
@@ -67,7 +67,7 @@ jobs:
 
   check_build:
     name: Check build for failures 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [find-new-tool-versions]
     if: failure()
     steps:
