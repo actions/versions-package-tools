@@ -26,7 +26,7 @@ defaults:
 jobs:
   find_new_versions:
     name: Find new versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       versions_output: ${{ steps.Get_new_versions.outputs.TOOL_VERSIONS }}
     steps:
@@ -40,7 +40,7 @@ jobs:
 
   check_new_versions:
     name: Check new versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: find_new_versions
     env:
       TOOL_VERSIONS: ${{needs.find_new_versions.outputs.versions_output}}
@@ -69,7 +69,7 @@ jobs:
                                                                       -Text "$message"
   trigger_builds:
     name: Trigger builds
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [find_new_versions, check_new_versions]
     env:
       TOOL_VERSIONS: ${{needs.find_new_versions.outputs.versions_output}}
@@ -91,7 +91,7 @@ jobs:
 
   check_build:
     name: Check build for failures 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [find_new_versions, check_new_versions, trigger_builds]
     if: failure()
     steps:
