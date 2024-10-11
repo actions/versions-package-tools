@@ -26,7 +26,7 @@ defaults:
 jobs:
   find_new_versions:
     name: Find new versions
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       versions_output: ${{ steps.Get_new_versions.outputs.TOOL_VERSIONS }}
     steps:
