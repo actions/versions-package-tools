@@ -30,7 +30,7 @@ jobs:
 
   build:
     name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env: 
       ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
       excludewinarm: ${{ !(inputs.tool-name == 'node' && inputs['tool-version'] < '20.0.0' && matrix.architecture == 'arm64' && matrix.platform == 'win32') }}
@@ -41,9 +41,38 @@ jobs:
         architecture: [x64, arm64]
             
     steps:
-    - name: checkout
-      if: env.excludewinarm == 'true'
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }}
+      run: |
+        ./builders/build-${{ inputs.tool-name }}.ps1 -Version ${{ inputs.tool-version }} `
+                                                     -Platform ${{ matrix.platform }} `
+                                                     -Architecture ${{ matrix.architecture }}
+    - name: Publish artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ runner.temp }}/artifact
+
+  build-arm:
+    name: Build ${{ inputs.tool-name }} ${{ inputs.tool-version }} [${{ matrix.platform }}] [${{ matrix.architecture }}]
+    runs-on: windows-latest
+    if: (inputs.tool-name == 'go') || (inputs.tool-name == 'node' && inputs['tool-version'] > '20.0.0')
+    env: 
+      ARTIFACT_NAME: ${{ inputs.tool-name }}-${{ inputs.tool-version }}-${{ matrix.platform }}-${{ matrix.architecture }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:       
+        - os: windows-latest
+          platform: win32
+          architecture: arm64
+
+
+    steps:
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
