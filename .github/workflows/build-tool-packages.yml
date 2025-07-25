@@ -76,7 +76,7 @@ jobs:
         - os: ubuntu-latest
           platform: linux
           architecture: x64
-        - os: macos-13
+        - os: macos-14-large
           platform: darwin
           architecture: x64
         - os: windows-latest
@@ -86,7 +86,7 @@ jobs:
           platform: linux
           architecture: arm64
           runner_type: self-hosted
-        - os: macos-latest
+        - os: macos-15
           platform: darwin
           architecture: arm64
         - os: setup-actions-windows-arm64-4-core
