@@ -67,15 +67,16 @@ function Queue-Builds {
         Write-Host "Queue build for $version..."
         $GitHubApi.CreateWorkflowDispatch($WorkflowFileName, $WorkflowDispatchRef, $inputs)
 
-        Start-Sleep -s 10
-        $workflowRunLink = Get-WorkflowRunLink -GitHubApi $GitHubApi `
-                                               -WorkflowFileName $WorkflowFileName `
-                                               -ToolVersion $version
-
-        if (-not $workflowRunLink) {
-            Write-Host "Could not find build for $version..."
-            exit 1
-        }
+        do { Start-Sleep -s 5 
+            $workflowRunLink = Get-WorkflowRunLink -GitHubApi $GitHubApi 
+                                    -WorkflowFileName $WorkflowFileName 
+                                    -ToolVersion $version 
+            $retryCount++ 
+            Write-Host "Attempt $retryCount of $maxRetries: Checking workflow run link for version $version..." 
+           } while (-not $workflowRunLink -and $retryCount -lt $maxRetries) 
+            if (-not $workflowRunLink) { 
+            Write-Host "Failed to retrieve workflow link after $maxRetries attempts for version $version" 
+          }
 
         Write-Host "Link to the build: $workflowRunLink"
     }
