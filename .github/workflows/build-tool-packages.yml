@@ -141,7 +141,7 @@ jobs:
 
     - name: Setup Node.js ${{ inputs.tool-version }}
       if: env.excludewinarm == 'true' && inputs.tool-name == 'node'
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.tool-version }}
 
