@@ -147,7 +147,7 @@ jobs:
 
     - name: Setup Go ${{ inputs.tool-version }}
       if: inputs.tool-name == 'go'
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ inputs.tool-version }}
 
