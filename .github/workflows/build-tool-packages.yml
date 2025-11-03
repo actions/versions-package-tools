@@ -168,7 +168,11 @@ jobs:
         Install-Module Pester -Force -Scope CurrentUser -SkipPublisherCheck
         Import-Module Pester
         $toolName = (Get-Culture).TextInfo.ToTitleCase("${{ inputs.tool-name }}")
-        Invoke-Pester -Script ./$toolName.Tests.ps1 -EnableExit
+        Invoke-Pester -Configuration @{
+                  Run = @{ Path = "./$toolName.Tests.ps1" }
+                  Should = @{ ErrorAction = 'Continue' }
+                  Output = @{ EnableExit = $true }
+                }      
       working-directory: ./tests
 
   publish_release:
