@@ -175,10 +175,10 @@ jobs:
         Import-Module Pester
         $toolName = (Get-Culture).TextInfo.ToTitleCase("${{ inputs.tool-name }}")
         Invoke-Pester -Configuration @{
-                  Run = @{ Path = "./$toolName.Tests.ps1" }
-                  Should = @{ ErrorAction = 'Continue' }
-                  Output = @{ EnableExit = $true }
-                }
+            Run = @{ Path = "./$toolName.Tests.ps1" }
+            Should = @{ ErrorAction = 'Continue' }
+            Output = @{ EnableExit = $true }
+        }
       working-directory: ./tests
 
   publish_release:
