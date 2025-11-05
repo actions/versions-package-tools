@@ -161,6 +161,7 @@ jobs:
         for ($i = 0; $i -lt 200; $i++) { Get-Random }
 
     - name: Ensure Pester Installed
+      if: env.excludewinarm == 'true'
       run: |
         $module = Get-Module -ListAvailable -Name Pester
         if (-not $module -or ($module.Version -lt [Version]"5.0.0")) {
