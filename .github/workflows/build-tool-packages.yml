@@ -169,7 +169,7 @@ jobs:
         
     - name: Run tests
       if: env.excludewinarm == 'true'
-      env:
+      env: 
         VERSION: ${{ inputs.tool-version }}
       run: |
         Import-Module Pester
@@ -180,21 +180,6 @@ jobs:
                   Output = @{ EnableExit = $true }
                 }
       working-directory: ./tests
-      
-    # - name: Run tests
-    #   if: env.excludewinarm == 'true'
-    #   env: 
-    #     VERSION: ${{ inputs.tool-version }}
-    #   run: |
-    #     Install-Module Pester -Force -Scope CurrentUser -SkipPublisherCheck
-    #     Import-Module Pester
-    #     $toolName = (Get-Culture).TextInfo.ToTitleCase("${{ inputs.tool-name }}")
-    #     Invoke-Pester -Configuration @{
-    #               Run = @{ Path = "./$toolName.Tests.ps1" }
-    #               Should = @{ ErrorAction = 'Continue' }
-    #               Output = @{ EnableExit = $true }
-    #             }      
-    #   working-directory: ./tests
 
   publish_release:
     name: Publish release
