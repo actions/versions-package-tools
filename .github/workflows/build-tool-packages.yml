@@ -56,7 +56,7 @@ jobs:
 
     - name: Publish artifact
       if: env.excludewinarm == 'true'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ runner.temp }}/artifact
