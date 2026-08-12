@@ -215,17 +215,43 @@ jobs:
         release_id=$(gh release view "$tag_name" --repo "$GITHUB_REPOSITORY" --json databaseId --jq '.databaseId')
         echo "id=$release_id" >> $GITHUB_OUTPUT
 
-    - name: Generate hash for packages
+    - name: Generate SHA256 Hashes for packages
       run: |
-        $childItems = Get-Childitem -Path '.'
-        $childItems | Foreach-Object {
-          $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
-          Write-Host "Package: $($packageObj.Name)"
-          $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
-          $hashString = "$actualHash $($packageObj.Name)"
-          Write-Host "$hashString"
-          Add-Content -Path ./hashes.sha256 -Value "$hashString"
-        } 
+        # Define the filename to exclude it from the list
+        $hashFile = "hashes.sha256"
+
+        # Ensure we start with a fresh file on every run
+        if (Test-Path $hashFile) { Remove-Item $hashFile }
+
+        # -File ensures only files are hashed
+        # -Exclude ensures we don't hash the output file itself
+        Get-ChildItem -Path "." -File -Exclude $hashFile | ForEach-Object {
+            Write-Host ("Package: {0}" -f $_.Name)
+
+            $hash = (Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLower()
+            
+            # Binary mode format: <hash> *<filename>
+            $content = "{0} *{1}" -f $hash, $_.Name
+
+            Write-Host "$content"
+            
+            # UTF8 encoding without BOM is standard for cross-platform tools
+            Add-Content -Path $hashFile -Value $content -Encoding utf8
+        }
+
+    - name: Verify Hashes with GNU cksum
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if ! [[ -s hashes.sha256 ]]; then
+          echo "Error: hashes.sha256 is missing or empty."
+          exit 1
+        fi
+
+        # --warn: alert on improperly formatted lines
+        # --strict: exit non-zero for any formatting errors or mismatches
+        cksum --check --algorithm sha256 --strict --warn hashes.sha256
 
     - name: Upload release assets
       uses: actions/github-script@v8
