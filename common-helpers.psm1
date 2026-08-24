@@ -26,6 +26,31 @@ function Execute-Command {
 
 <#
 .SYNOPSIS
+Check whether a given remote Uri exists
+#>
+function Check-Uri-Exist {
+    param(
+        [Parameter(Mandatory=$true)]
+        [Uri]$Uri
+    )
+
+    try {
+        $statusCode = (Invoke-WebRequest -Uri $Uri -UseBasicParsing -DisableKeepAlive -Method head).StatusCode
+        if ($statusCode -eq 200) {
+            return $true
+        } else {
+            Write-Host "File at $Uri did not appear to be valid, with status code '$statusCode'"
+            return $false;
+        }
+    } catch {
+        $statusCode = [int]$_.Exception.Response.StatusCode
+        Write-Host "File at $Uri did not appear to be valid, with status code '$statusCode'"
+        return $false
+    }
+}
+
+<#
+.SYNOPSIS
 Download file from url and return local path to file
 #>
 function Download-File {
@@ -47,7 +72,7 @@ function Download-File {
         Write-Host "Error during downloading file from '$Uri'"
         "$_"
         exit 1
-    }    
+    }
 }
 
 <#
