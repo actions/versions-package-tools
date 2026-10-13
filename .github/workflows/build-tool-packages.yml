@@ -217,12 +217,14 @@ jobs:
 
     - name: Generate hash for packages
       run: |
-        $childItems = Get-Childitem -Path '.'
+        $childItems = Get-Childitem -Path '.' -Directory
         $childItems | Foreach-Object {
-          $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
+          $packageFiles = @(Get-Childitem -Path $_.FullName -File)
+          if ($packageFiles.Count -ne 1) { throw "Expected exactly one file in artifact folder '$($_.FullName)', found $($packageFiles.Count)." }
+          $packageObj = $packageFiles[0]
           Write-Host "Package: $($packageObj.Name)"
           $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
-          $hashString = "$actualHash $($packageObj.Name)"
+          $hashString = "$actualHash *$($packageObj.Name)"
           Write-Host "$hashString"
           Add-Content -Path ./hashes.sha256 -Value "$hashString"
         } 
@@ -233,18 +235,50 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs');
-          for (let artifactDir of fs.readdirSync('.')) {
-            let artifactName = fs.lstatSync(artifactDir).isDirectory() ? fs.readdirSync(`${artifactDir}`)[0] : artifactDir;
+          const path = require('path');
+          const uploads = [];
+          for (const entry of fs.readdirSync('.')) {
+            let artifactName;
+            let data;
+            if (fs.lstatSync(entry).isDirectory()) {
+              const files = fs.readdirSync(entry)
+                .filter(f => fs.lstatSync(path.join(entry, f)).isFile());
+              if (files.length !== 1) {
+                throw new Error(`Expected exactly one file in artifact folder '${entry}', found ${files.length}.`);
+              }
+              artifactName = files[0];
+              data = fs.readFileSync(path.join(entry, artifactName));
+            } else {
+              artifactName = entry;
+              data = fs.readFileSync(entry);
+            }
 
             console.log(`Upload ${artifactName} asset`);
-            github.rest.repos.uploadReleaseAsset({
+            uploads.push(github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: ${{ steps.create_release.outputs.id }},
               name: artifactName,
-              data: fs.lstatSync(artifactDir).isDirectory() ? fs.readFileSync(`./${artifactDir}/${artifactName}`) : fs.readFileSync(`./${artifactName}`).toString()
-            });
+              data,
+            }));
           }
+          await Promise.all(uploads);
+
+    - name: Verify uploaded release assets
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ inputs.tool-version }}-${{ github.run_id }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        tmp="$(mktemp -d)"
+        gh release download "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --dir "$tmp"
+        cd "$tmp"
+        if [[ ! -s hashes.sha256 ]]; then
+          echo "Error: hashes.sha256 is missing or empty on the release."
+          exit 1
+        fi
+        sha256sum --check --strict --warn hashes.sha256
 
   trigger_pr:
     name: Trigger "Create Pull Request" workflow
